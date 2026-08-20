@@ -89,7 +89,7 @@
       name: 'עתים לבינה',
       description: 'לוח עתים לבינה (הרב דוד אהרן סופר, ירושלים) — כל זמני האור במעלות: ' +
         'עלות א׳ 19.8° (90 דק׳), עלות ב׳ 16.1° (72 דק׳), משיכיר 11.5°, צאת הכוכבים כ־18 דק׳ במעלות (4.66°). ' +
-        'זריחה ושקיעה מישוריות, מוצ״ש 8.5°, ר״ת 72 דק׳.',
+        'השקיעה לפי גובה המקום (כבלוח), שעות הגר״א על בסיס מישורי. מוצ״ש 8.5°, ר״ת 72 דק׳ מהשקיעה הנראית.',
       elevation: 'sea',
       mgaDayStart: { type: 'degrees', angle: 19.8, ref: 'sunrise' },
       mgaDayEnd: { type: 'degrees', angle: 19.8, ref: 'sunset' },
@@ -97,9 +97,10 @@
         alos: { type: 'degrees', angle: 19.8, ref: 'sunrise' },
         alos2: { type: 'degrees', angle: 16.1, ref: 'sunrise' },
         misheyakir: { type: 'degrees', angle: 11.5, ref: 'sunrise' },
+        sunset: { type: 'sunset', elevation: 'visible' },
         tzeis: { type: 'degrees', angle: 4.66, ref: 'sunset' },
         tzeisShabbat: { type: 'degrees', angle: 8.5, ref: 'sunset' },
-        tzeisRT: { type: 'fixed', minutes: 72, ref: 'sunset' }
+        tzeisRT: { type: 'fixed', minutes: 72, ref: 'sunsetVisible' }
       })
     },
     {
