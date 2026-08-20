@@ -446,6 +446,16 @@ tr.zman-passed .zman-time { opacity: 0.55; font-weight: 500; }
   font-weight: 700;
 }
 
+.m-parasha {
+  font-size: 0.66rem;
+  font-weight: 700;
+  color: var(--primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 1px;
+}
+
 .month-table {
   border-collapse: collapse;
   width: 100%;

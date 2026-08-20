@@ -497,6 +497,18 @@
       dates.appendChild(greg);
       td.appendChild(dates);
 
+      // פרשת השבוע — במשבצת השבת
+      if (day.info.isShabbat && typeof ParashaUtils !== 'undefined') {
+        var pw = ParashaUtils.weekly(day.d);
+        if (pw && pw.name) {
+          var pel = document.createElement('div');
+          pel.className = 'm-parasha';
+          pel.textContent = pw.name;
+          pel.title = 'פרשת השבוע';
+          td.appendChild(pel);
+        }
+      }
+
       var sr = document.createElement('div');
       sr.className = 'm-zman';
       sr.innerHTML = '<span class="m-ico">🌅</span><span class="m-time">' +
