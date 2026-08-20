@@ -124,6 +124,9 @@
     var info = makeDayInfo(d);
     var result = ZmanimEngine.computeDay(d, loc, method);
     var candleMinutes = loc.candleMinutes || 18;
+    // חלק מהלוחות (עתים לבינה) מונים הדלקת נרות מהשקיעה מהגובה
+    var candlesBase = (method.candlesRef && result[method.candlesRef] != null)
+      ? result[method.candlesRef] : result.sunset;
     var showCandles = info.isFriday || (info.erevChag && !info.isShabbat);
     var rows = [];
     var order = ZmanimMethods.ZMAN_ORDER;
@@ -134,15 +137,16 @@
 
       if (key === 'candles') {
         if (!showCandles && mode === 'daily') continue;
-        if (showCandles && result.sunset != null) {
-          time = result.sunset - candleMinutes * 60000;
+        if (showCandles && candlesBase != null) {
+          time = candlesBase - candleMinutes * 60000;
         }
         if (mode === 'matrix' && time == null) {
           rows.push({ key: key, name: name, time: null, desc: '' });
           continue;
         }
         if (mode === 'daily' && info.erevChag) name = 'הדלקת נרות (' + info.erevChag + ')';
-        desc = candleMinutes + ' דקות לפני השקיעה';
+        desc = candleMinutes + ' דקות לפני השקיעה' +
+          (method.candlesRef === 'sunset2' ? ' מהגובה' : '');
       } else {
         if (!(key in (method.zmanim || {}))) continue;
         // צאת שבת — רלוונטי רק ביום שבת (בתצוגה יומית)

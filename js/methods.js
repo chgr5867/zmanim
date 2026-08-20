@@ -18,7 +18,7 @@
     'alos', 'alos2', 'misheyakir', 'sunrise',
     'sofShmaMGA', 'sofShmaGRA', 'sofTfilaMGA', 'sofTfilaGRA',
     'chatzos', 'minchaGedola', 'minchaKetana', 'plag',
-    'candles', 'sunset', 'tzeis', 'tzeisShabbat', 'tzeisRT', 'chatzosNight'
+    'candles', 'sunset', 'sunset2', 'tzeis', 'tzeisShabbat', 'tzeisRT', 'chatzosNight'
   ];
 
   var ZMAN_NAMES = {
@@ -36,6 +36,7 @@
     plag: 'פלג המנחה',
     candles: 'הדלקת נרות',
     sunset: 'שקיעת החמה',
+    sunset2: 'שקיעה מהגובה (זהירות מלהקל)',
     tzeis: 'צאת הכוכבים',
     tzeisShabbat: 'צאת שבת ויו״ט',
     tzeisRT: 'צאת הכוכבים — רבינו תם',
@@ -89,15 +90,17 @@
       name: 'עתים לבינה',
       description: 'לוח עתים לבינה (הרב דוד אהרן סופר, ירושלים) — כל זמני האור במעלות: ' +
         'עלות א׳ 19.8° (90 דק׳), עלות ב׳ 16.1° (72 דק׳), משיכיר 11.5°, צאת הכוכבים כ־18 דק׳ במעלות (4.66°). ' +
-        'השקיעה לפי גובה המקום (כבלוח), שעות הגר״א על בסיס מישורי. מוצ״ש 8.5°, ר״ת 72 דק׳ מהשקיעה הנראית.',
+        'כבלוח: שקיעה במישור ולצדה שקיעה מהגובה (זהירות מלהקל), הדלקת נרות מהשקיעה מהגובה, ' +
+        'חצות אמיתי, מנחה גדולה — המאוחר. מוצ״ש 8.5°, ר״ת 72 דק׳.',
       elevation: 'sea',
+      candlesRef: 'sunset2',
       mgaDayStart: { type: 'degrees', angle: 19.8, ref: 'sunrise' },
       mgaDayEnd: { type: 'degrees', angle: 19.8, ref: 'sunset' },
       zmanim: Object.assign(baseZmanim(), {
         alos: { type: 'degrees', angle: 19.8, ref: 'sunrise' },
         alos2: { type: 'degrees', angle: 16.1, ref: 'sunrise' },
         misheyakir: { type: 'degrees', angle: 11.5, ref: 'sunrise' },
-        sunset: { type: 'sunset', elevation: 'visible' },
+        sunset2: { type: 'sunset', elevation: 'visible' },
         tzeis: { type: 'degrees', angle: 4.66, ref: 'sunset' },
         tzeisShabbat: { type: 'degrees', angle: 8.5, ref: 'sunset' },
         tzeisRT: { type: 'fixed', minutes: 72, ref: 'sunsetVisible' }
