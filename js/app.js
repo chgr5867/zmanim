@@ -421,6 +421,37 @@
     renderAll();
   }
 
+  /** דילוג שבוע קדימה/אחורה בתצוגה השבועית */
+  function gotoWeek(dir) {
+    state.date = shiftDate(state.date, dir < 0 ? -7 : 7);
+    renderAll();
+  }
+
+  /**
+   * החלקת אצבע אופקית על אזור תצוגה — RTL: שמאלה = הבא, ימינה = הקודם.
+   * אם ההחלקה גללה את הטבלה הפנימית (table-scroll) — לא מדלגים,
+   * כדי שגלילת טבלה רחבה במובייל לא תחליף שבוע/חודש בטעות.
+   */
+  function wireSwipe(element, goto) {
+    var touchX = null, touchY = null, startScroll = 0;
+    var scroller = element.querySelector('.table-scroll');
+    element.addEventListener('touchstart', function (e) {
+      touchX = e.touches[0].clientX;
+      touchY = e.touches[0].clientY;
+      startScroll = scroller ? scroller.scrollLeft : 0;
+    }, { passive: true });
+    element.addEventListener('touchend', function (e) {
+      if (touchX == null) return;
+      var dx = e.changedTouches[0].clientX - touchX;
+      var dy = e.changedTouches[0].clientY - touchY;
+      var scrolled = scroller ? Math.abs(scroller.scrollLeft - startScroll) : 0;
+      touchX = touchY = null;
+      if (scrolled > 5) return;
+      if (Math.abs(dx) < 60 || Math.abs(dy) > Math.abs(dx)) return;
+      goto(dx < 0 ? 1 : -1);
+    }, { passive: true });
+  }
+
   /** גבולות החודש העברי המכיל את התאריך: א׳ בחודש ומספר ימיו (29/30) */
   function hebrewMonthRange(d) {
     var start = d;
@@ -1003,23 +1034,13 @@
       renderAll();
     });
 
-    // ניווט חודשים בלוח החודשי: כפתורים + החלקת אצבע במובייל
+    // ניווט חודשים ושבועות: כפתורים + החלקת אצבע במובייל
     el('btn-month-prev').addEventListener('click', function () { gotoMonth(-1); });
     el('btn-month-next').addEventListener('click', function () { gotoMonth(1); });
-    var touchX = null, touchY = null;
-    el('view-monthly').addEventListener('touchstart', function (e) {
-      touchX = e.touches[0].clientX;
-      touchY = e.touches[0].clientY;
-    }, { passive: true });
-    el('view-monthly').addEventListener('touchend', function (e) {
-      if (touchX == null) return;
-      var dx = e.changedTouches[0].clientX - touchX;
-      var dy = e.changedTouches[0].clientY - touchY;
-      touchX = touchY = null;
-      if (Math.abs(dx) < 60 || Math.abs(dy) > Math.abs(dx)) return;
-      // RTL: החלקה שמאלה — החודש הבא; ימינה — הקודם
-      gotoMonth(dx < 0 ? 1 : -1);
-    }, { passive: true });
+    el('btn-week-prev').addEventListener('click', function () { gotoWeek(-1); });
+    el('btn-week-next').addEventListener('click', function () { gotoWeek(1); });
+    wireSwipe(el('view-monthly'), gotoMonth);
+    wireSwipe(el('view-weekly'), gotoWeek);
     el('btn-today').addEventListener('click', function () {
       state.date = todayInTZ(state.loc.tz);
       renderAll();
