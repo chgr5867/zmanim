@@ -703,6 +703,24 @@
       note = 'הזריחה והשקיעה מחושבות עם התאמת גובה של ' + Math.round(loc.elevation) + ' מ׳. זמני המעלות אינם מושפעים מגובה.';
     }
     el('elevation-note').textContent = note;
+    updatePrintOrientation();
+  }
+
+  /**
+   * כיוון הדף בהדפסה: הלוח החודשי מודפס לרוחב (landscape), שאר התצוגות לאורך.
+   * מוזרק ככלל @page שגובר על ברירת המחדל שב-style.css, ומתעדכן עם החלפת
+   * תצוגה — כך שגם הדפסה מהכפתור וגם Ctrl+P מקבלות את הכיוון הנכון.
+   */
+  function updatePrintOrientation() {
+    var style = document.getElementById('print-orientation');
+    if (!style) {
+      style = document.createElement('style');
+      style.id = 'print-orientation';
+      document.head.appendChild(style);
+    }
+    style.textContent = state.view === 'monthly'
+      ? '@media print { @page { size: A4 landscape; } }'
+      : '';
   }
 
   function renderAll() {
