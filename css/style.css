@@ -787,7 +787,9 @@ svg.m-ico {
 
 /* ===== הדפסה — לוח נקי בשחור-לבן, מותאם לרוחב דף A4 ===== */
 @media print {
-  @page { size: A4; margin: 10mm; }
+  /* לא כופים גודל נייר (A4 כפוי הפיל מדפסות מסוימות) — רק שוליים;
+     הטבלאות ממילא נצמדות לרוחב הדף בפועל דרך width:100% + table-layout:fixed */
+  @page { margin: 10mm; }
 
   html, body { width: 100%; margin: 0; padding: 0; }
   body { background: #fff; color: #000; }

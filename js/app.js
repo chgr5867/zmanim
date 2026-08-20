@@ -708,8 +708,9 @@
 
   /**
    * כיוון הדף בהדפסה: הלוח החודשי מודפס לרוחב (landscape), שאר התצוגות לאורך.
-   * מוזרק ככלל @page שגובר על ברירת המחדל שב-style.css, ומתעדכן עם החלפת
-   * תצוגה — כך שגם הדפסה מהכפתור וגם Ctrl+P מקבלות את הכיוון הנכון.
+   * מוזרק ככלל @page שמתעדכן עם החלפת תצוגה — כך שגם הדפסה מהכפתור וגם
+   * Ctrl+P מקבלות את הכיוון הנכון. בכוונה בלי גודל נייר (רק כיוון) —
+   * כפיית A4 גרמה לכשל הדפסה במדפסות שמוגדרות לגודל אחר.
    */
   function updatePrintOrientation() {
     var style = document.getElementById('print-orientation');
@@ -719,7 +720,7 @@
       document.head.appendChild(style);
     }
     style.textContent = state.view === 'monthly'
-      ? '@media print { @page { size: A4 landscape; } }'
+      ? '@media print { @page { size: landscape; } }'
       : '';
   }
 
@@ -1283,6 +1284,9 @@
   function init() {
     loadState();
     applyTheme();
+    // קישור ישיר לתצוגה: index.html#view=monthly (וגם weekly/daily/compare)
+    var hashView = (location.hash.match(/view=(daily|weekly|monthly|compare)/) || [])[1];
+    if (hashView) state.view = hashView;
     if (!state.loc) {
       state.settingsOpen = true; // ביקור ראשון — מציגים את ההגדרות פתוחות
       var jm = ZmanimCities.getById('jerusalem');
