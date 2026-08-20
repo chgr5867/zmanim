@@ -295,6 +295,17 @@
       l2.textContent = d.day + '.' + d.month;
       th.appendChild(l1);
       th.appendChild(l2);
+      // פרשת השבוע — בכותרת עמודת השבת
+      if (day.info.isShabbat && typeof ParashaUtils !== 'undefined') {
+        var pw = ParashaUtils.weekly(day.info.date);
+        if (pw && pw.name) {
+          var pel = document.createElement('span');
+          pel.className = 'day-parasha';
+          pel.textContent = pw.name;
+          pel.title = 'פרשת השבוע';
+          th.appendChild(pel);
+        }
+      }
       hr.appendChild(th);
     });
     thead.appendChild(hr);

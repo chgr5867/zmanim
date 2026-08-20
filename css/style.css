@@ -425,6 +425,12 @@ tr.zman-passed .zman-time { opacity: 0.55; font-weight: 500; }
 }
 .matrix-table thead th .day-heb { display: block; font-weight: 700; color: var(--text); font-size: 0.8rem; }
 .matrix-table thead th .day-greg { display: block; font-size: 0.68rem; }
+.matrix-table thead th .day-parasha {
+  display: block;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--primary);
+}
 
 /* ===== לוח חודשי ===== */
 .month-nav {
