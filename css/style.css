@@ -427,6 +427,25 @@ tr.zman-passed .zman-time { opacity: 0.55; font-weight: 500; }
 .matrix-table thead th .day-greg { display: block; font-size: 0.68rem; }
 
 /* ===== לוח חודשי ===== */
+.month-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+.month-nav p { margin: 0; text-align: center; flex: 1; }
+
+.m-motzash {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  line-height: 1.35;
+  white-space: nowrap;
+  color: var(--primary-light);
+  font-weight: 700;
+}
+
 .month-table {
   border-collapse: collapse;
   width: 100%;

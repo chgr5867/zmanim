@@ -403,6 +403,13 @@
     table.appendChild(tbody);
   }
 
+  /** דילוג חודש עברי קדימה/אחורה בתצוגה החודשית */
+  function gotoMonth(dir) {
+    var r = hebrewMonthRange(state.date);
+    state.date = dir < 0 ? shiftDate(r.start, -1) : shiftDate(r.start, r.days);
+    renderAll();
+  }
+
   /** גבולות החודש העברי המכיל את התאריך: א׳ בחודש ומספר ימיו (29/30) */
   function hebrewMonthRange(d) {
     var start = d;
@@ -515,6 +522,23 @@
           chagLabel.className = 'm-chag';
           chagLabel.textContent = day.info.erevChag;
           td.appendChild(chagLabel);
+        }
+      }
+
+      // יציאת השבת / החג — בשבתות ובימי חג (יום שקדם לו ערב חג,
+      // וכן ב' תשרי — יום טוב שני של ראש השנה הנוהג גם בא"י)
+      var hp = HebrewUtils.hebrewParts(day.info.noon, 'UTC');
+      var isChagDay = !!HebrewUtils.erevChagName(dateAtNoonUTC(shiftDate(day.d, -1)), 'UTC') ||
+        (hp.month === 'Tishri' && hp.day === 2);
+      if (day.info.isShabbat || isChagDay) {
+        var motzash = day.result.tzeisShabbat != null ? day.result.tzeisShabbat : day.result.tzeis;
+        if (motzash != null) {
+          var mo = document.createElement('div');
+          mo.className = 'm-motzash';
+          mo.title = day.info.isShabbat ? 'יציאת השבת' : 'יציאת החג';
+          mo.innerHTML = '<span class="m-ico">✨</span><span class="m-time">' +
+            HebrewUtils.formatTime(motzash, loc.tz) + '</span>';
+          td.appendChild(mo);
         }
       }
 
@@ -941,21 +965,38 @@
 
     el('btn-prev-day').addEventListener('click', function () {
       if (state.view === 'monthly') {
-        state.date = shiftDate(hebrewMonthRange(state.date).start, -1);
-      } else {
-        state.date = shiftDate(state.date, state.view === 'weekly' ? -7 : -1);
+        gotoMonth(-1);
+        return;
       }
+      state.date = shiftDate(state.date, state.view === 'weekly' ? -7 : -1);
       renderAll();
     });
     el('btn-next-day').addEventListener('click', function () {
       if (state.view === 'monthly') {
-        var r = hebrewMonthRange(state.date);
-        state.date = shiftDate(r.start, r.days);
-      } else {
-        state.date = shiftDate(state.date, state.view === 'weekly' ? 7 : 1);
+        gotoMonth(1);
+        return;
       }
+      state.date = shiftDate(state.date, state.view === 'weekly' ? 7 : 1);
       renderAll();
     });
+
+    // ניווט חודשים בלוח החודשי: כפתורים + החלקת אצבע במובייל
+    el('btn-month-prev').addEventListener('click', function () { gotoMonth(-1); });
+    el('btn-month-next').addEventListener('click', function () { gotoMonth(1); });
+    var touchX = null, touchY = null;
+    el('view-monthly').addEventListener('touchstart', function (e) {
+      touchX = e.touches[0].clientX;
+      touchY = e.touches[0].clientY;
+    }, { passive: true });
+    el('view-monthly').addEventListener('touchend', function (e) {
+      if (touchX == null) return;
+      var dx = e.changedTouches[0].clientX - touchX;
+      var dy = e.changedTouches[0].clientY - touchY;
+      touchX = touchY = null;
+      if (Math.abs(dx) < 60 || Math.abs(dy) > Math.abs(dx)) return;
+      // RTL: החלקה שמאלה — החודש הבא; ימינה — הקודם
+      gotoMonth(dx < 0 ? 1 : -1);
+    }, { passive: true });
     el('btn-today').addEventListener('click', function () {
       state.date = todayInTZ(state.loc.tz);
       renderAll();
