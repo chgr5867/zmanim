@@ -785,8 +785,11 @@ svg.m-ico {
   .compare-hint { display: none; } /* בעכבר יש tooltip — ההנחיה מיותרת */
 }
 
-/* ===== הדפסה — לוח נקי בשחור-לבן, בלי כלי ממשק ===== */
+/* ===== הדפסה — לוח נקי בשחור-לבן, מותאם לרוחב דף A4 ===== */
 @media print {
+  @page { size: A4; margin: 10mm; }
+
+  html, body { width: 100%; margin: 0; padding: 0; }
   body { background: #fff; color: #000; }
   .app-header {
     background: none;
@@ -797,17 +800,67 @@ svg.m-ico {
   .mini-dash, .date-tools, .hebdate-pop, .header-actions, .back-link,
   .date-line .icon-btn, .view-tabs, .settings-summary, #settings-cards,
   .month-nav .small-btn, .update-bar, .toast, .compare-hint { display: none !important; }
+
+  /* עמודת התוכן נפרשת לכל רוחב הדף */
+  .container, .header-inner {
+    max-width: none;
+    width: 100%;
+    padding: 0;
+  }
   .card {
     box-shadow: none;
     border: none;
     padding: 0;
+    margin: 0;
   }
   #zmanim-card.wide {
     width: 100%;
     margin-inline-start: 0;
   }
+
+  /* הטבלאות הרחבות מתכווצות לרוחב הדף במקום להיחתך */
   .table-scroll { overflow: visible; margin: 0; }
-  .matrix-table .row-head { box-shadow: none; position: static; }
+  .matrix-table, .month-table {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100%;
+    table-layout: fixed;
+    font-size: 8pt;
+  }
+  .matrix-table th, .matrix-table td {
+    padding: 3pt 2pt;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+  /* עמודת שמות הזמנים רחבה מעמודות השעות, והשמות נשברים לשורה במקום להיחתך */
+  .matrix-table .row-head {
+    width: 18%;
+    white-space: normal;
+    overflow: visible;
+    box-shadow: none;
+    position: static;
+    font-size: 7.5pt;
+    line-height: 1.25;
+  }
+  .matrix-table thead th { font-size: 7pt; }
+  .matrix-table thead th .day-heb { font-size: 7.5pt; }
+  .matrix-table thead th .day-greg, .matrix-table thead th .day-parasha { font-size: 6.5pt; }
+
+  .mcell {
+    height: auto;
+    padding: 2pt 3pt;
+    font-size: 7pt;
+  }
+  .m-heb { font-size: 8pt; }
+  .m-greg, .m-chag, .m-parasha { font-size: 6pt; }
+  .month-table thead th { font-size: 7.5pt; padding: 2pt; }
+
+  /* שורות ומשבצות לא נחתכות בין עמודים */
+  .zmanim-table tr, .matrix-table tr, .month-table tr { break-inside: avoid; }
+
+  .zmanim-table td { padding: 4pt 3pt; font-size: 9.5pt; }
+  .zman-desc { font-size: 6.5pt; }
+
   .zmanim-table td, .matrix-table th, .matrix-table td, .mcell,
   .month-table thead th { border-color: #999; }
   tr.zman-next { background: none; outline: none; }
