@@ -130,8 +130,6 @@
     if (loc.highCustom && method.highCityOverrides && method.highCityOverrides.candlesRef) {
       candlesRef = method.highCityOverrides.candlesRef;
     }
-    var candlesBase = (candlesRef && result[candlesRef] != null)
-      ? result[candlesRef] : result.sunset;
     var showCandles = info.isFriday || (info.erevChag && !info.isShabbat);
     var rows = [];
     var order = ZmanimMethods.ZMAN_ORDER;
@@ -142,8 +140,8 @@
 
       if (key === 'candles') {
         if (!showCandles && mode === 'daily') continue;
-        if (showCandles && candlesBase != null) {
-          time = candlesBase - candleMinutes * 60000;
+        if (showCandles && result.candles != null) {
+          time = result.candles;
         }
         if (mode === 'matrix' && time == null) {
           rows.push({ key: key, name: name, time: null, desc: '' });

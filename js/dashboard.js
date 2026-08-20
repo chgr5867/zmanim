@@ -59,6 +59,8 @@
   // ---------- חישוב ----------
 
   function candlesTime(result, forLoc) {
+    // המנוע כבר מחשב את הנרות מהערכים הלא-מעוגלים ומעגל לחומרא
+    if (result.candles != null) return result.candles;
     var base = (method.candlesRef && result[method.candlesRef] != null)
       ? result[method.candlesRef] : result.sunset;
     if (base == null) return null;

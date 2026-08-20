@@ -25,6 +25,32 @@
   var MS_PER_MIN = 60000;
 
   /**
+   * כיוון העיגול לדקה שלמה לכל זמן, במוסכמת "עיגול לחומרא" של הלוחות:
+   * up — זמני "התחלה" (משיכיר, הנץ, מנחה, פלג, צאת) שאיחורם חומרא;
+   * down — זמני "סוף" (עלות כסוף אכילה, ק"ש, תפילה, נרות, שקיעה) שהקדמתם חומרא;
+   * nearest — חצות (אין צד חומרא).
+   */
+  var ZMAN_ROUNDING = {
+    alos: 'down', alos2: 'down',
+    misheyakir: 'up', sunrise: 'up',
+    sofShmaMGA2: 'down', sofShmaMGA: 'down', sofShmaGRA: 'down',
+    sofTfilaMGA2: 'down', sofTfilaMGA: 'down', sofTfilaGRA: 'down',
+    chatzos: 'nearest',
+    minchaGedola: 'up', minchaKetana: 'up', plag: 'up',
+    seudah: 'down', candles: 'down',
+    sunset: 'down', sunset2: 'up',
+    tzeis: 'up', tzeisShabbat: 'up', tzeisRT: 'up', tzeisRT2: 'up',
+    chatzosNight: 'nearest'
+  };
+
+  function roundToMinute(ts, dir) {
+    if (ts == null) return ts;
+    if (dir === 'up') return Math.ceil(ts / MS_PER_MIN) * MS_PER_MIN;
+    if (dir === 'nearest') return Math.round(ts / MS_PER_MIN) * MS_PER_MIN;
+    return Math.floor(ts / MS_PER_MIN) * MS_PER_MIN;
+  }
+
+  /**
    * @param {Object} d {year, month(1-12), day}
    * @param {Object} loc {lat, lon, elevation}
    * @param {Object} method אובייקט שיטה (ראו methods.js)
@@ -87,7 +113,28 @@
       result[key] = rule ? resolveRule(rule, ctx) : null;
     }
 
-    // זמנים שימושיים שתמיד קיימים
+    // הדלקת נרות — דקות המנהג לפני השקיעה (או השקיעה מהגובה, לפי השיטה).
+    // מחושב כאן מהערך הלא-מעוגל, כדי שהעיגול (כלפי מטה) ייעשה מהמקור.
+    var candlesBase = (method.candlesRef && result[method.candlesRef] != null)
+      ? result[method.candlesRef] : result.sunset;
+    if (candlesBase != null) {
+      result.candles = candlesBase - (loc.candleMinutes || 18) * MS_PER_MIN;
+    }
+
+    // עיגול לדקה שלמה כמנהג הלוחות:
+    // 'lechumra' (ברירת מחדל) — לפי כיוון החומרא של כל זמן;
+    // 'truncate' — חיתוך שניות תמיד (מנהג עתים לבינה);
+    // 'none' — ללא עיגול (לבדיקות דיוק).
+    var scheme = method.rounding || 'lechumra';
+    if (scheme !== 'none') {
+      for (var rk in result) {
+        if (!Object.prototype.hasOwnProperty.call(result, rk)) continue;
+        var dir = scheme === 'truncate' ? 'down' : (ZMAN_ROUNDING[rk] || 'down');
+        result[rk] = roundToMinute(result[rk], dir);
+      }
+    }
+
+    // זמנים שימושיים שתמיד קיימים (לא מעוגלים)
     result._sunriseVisible = ctx.sunriseVisible;
     result._sunsetVisible = ctx.sunsetVisible;
     result._sunriseSea = ctx.sunriseSea;
@@ -251,6 +298,7 @@
 
   global.ZmanimEngine = {
     computeDay: computeDay,
-    describeRule: describeRule
+    describeRule: describeRule,
+    ZMAN_ROUNDING: ZMAN_ROUNDING
   };
 })(typeof window !== 'undefined' ? window : globalThis);

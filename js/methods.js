@@ -116,6 +116,7 @@
       elevation: 'sea',
       candlesRef: 'sunset2',
       refraction: 0.5166,
+      rounding: 'truncate',
       mgaDayStart: { type: 'degrees', angle: 19.8, ref: 'sunrise' },
       mgaDayEnd: { type: 'degrees', angle: 19.8, ref: 'sunset' },
       zmanim: Object.assign(baseZmanim(), {
