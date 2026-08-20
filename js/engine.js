@@ -38,11 +38,13 @@
     ctx.date = d;
     ctx.loc = loc;
 
-    // זריחה ושקיעה — גם "נראית" (עם גובה) וגם "מישורית" (גובה פני הים)
-    ctx.sunriseVisible = Solar.sunEventUTC(d.year, d.month, d.day, loc.lat, loc.lon, Solar.GEOMETRIC_ZENITH, true, elev);
-    ctx.sunsetVisible = Solar.sunEventUTC(d.year, d.month, d.day, loc.lat, loc.lon, Solar.GEOMETRIC_ZENITH, false, elev);
-    ctx.sunriseSea = Solar.sunEventUTC(d.year, d.month, d.day, loc.lat, loc.lon, Solar.GEOMETRIC_ZENITH, true, 0);
-    ctx.sunsetSea = Solar.sunEventUTC(d.year, d.month, d.day, loc.lat, loc.lon, Solar.GEOMETRIC_ZENITH, false, 0);
+    // זריחה ושקיעה — גם "נראית" (עם גובה) וגם "מישורית" (גובה פני הים).
+    // method.refraction — רפרקציה מותאמת (למשל 0.5166° בלוחות ההולכים אחר הרב מנת)
+    var refr = method.refraction;
+    ctx.sunriseVisible = Solar.sunEventUTC(d.year, d.month, d.day, loc.lat, loc.lon, Solar.GEOMETRIC_ZENITH, true, elev, refr);
+    ctx.sunsetVisible = Solar.sunEventUTC(d.year, d.month, d.day, loc.lat, loc.lon, Solar.GEOMETRIC_ZENITH, false, elev, refr);
+    ctx.sunriseSea = Solar.sunEventUTC(d.year, d.month, d.day, loc.lat, loc.lon, Solar.GEOMETRIC_ZENITH, true, 0, refr);
+    ctx.sunsetSea = Solar.sunEventUTC(d.year, d.month, d.day, loc.lat, loc.lon, Solar.GEOMETRIC_ZENITH, false, 0, refr);
 
     ctx.sunrise = useElev ? ctx.sunriseVisible : ctx.sunriseSea;
     ctx.sunset = useElev ? ctx.sunsetVisible : ctx.sunsetSea;
@@ -160,6 +162,21 @@
         return latest;
       }
 
+      case 'shaosSpan': {
+        // שעות זמניות על יום מוגדר בחוקים (למשל מג"א לחומרא: עלות 90° עד צאת 6.45°)
+        var spanStart = resolveRule(rule.start, ctx);
+        var spanEnd = resolveRule(rule.end, ctx);
+        if (spanStart == null || spanEnd == null) return null;
+        return spanStart + rule.hours * ((spanEnd - spanStart) / 12);
+      }
+
+      case 'offset': {
+        // היסט בדקות שוות מזמן המוגדר בחוק אחר (למשל: 30 דק' לפני צאת 3.65°)
+        var offBase = resolveRule(rule.base, ctx);
+        if (offBase == null) return null;
+        return offBase + rule.minutes * MS_PER_MIN;
+      }
+
       default:
         return null;
     }
@@ -210,6 +227,13 @@
         var parts = [];
         for (var i = 0; i < rule.rules.length; i++) parts.push(describeRule(rule.rules[i], method));
         return 'המאוחר מבין: ' + parts.join(' / ');
+      }
+      case 'shaosSpan':
+        return rule.hours + ' שעות זמניות — ' + (rule.label || 'יום מוגדר בנפרד');
+      case 'offset': {
+        var om = Math.abs(rule.minutes);
+        var odir = rule.minutes < 0 ? 'לפני' : 'אחרי';
+        return rule.label || (om + ' דקות ' + odir + ' ' + describeRule(rule.base, method));
       }
       default:
         return '';

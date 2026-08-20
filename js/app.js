@@ -807,6 +807,11 @@
     var match = ZmanimCities.CITIES.filter(function (c) { return c.name === state.loc.name; })[0];
     if (match) el('city-select').value = match.id;
 
+    // כשהאפליקציה מוגשת מתוך אתר "היום יום" — מציגים קישור חזרה אליו
+    if (/(^|\.)hayomyom\.net$/.test(location.hostname)) {
+      el('back-link').hidden = false;
+    }
+
     renderAll();
 
     // רענון ההדגשה של "הזמן הבא" כל חצי דקה

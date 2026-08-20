@@ -125,10 +125,13 @@
    * התאמת זנית: לזנית הגיאומטרית (90°) מוסיפים רפרקציה + רדיוס שמש
    * (וגם שיקוע אופק אם ניתן גובה). לזוויות אחרות (זמני מעלות) לא מוסיפים —
    * הזוויות ההלכתיות (16.1° וכו') כוילו כבר ביחס לזריחה/שקיעה הנראית.
+   * refractionDeg — רפרקציה מותאמת במעלות (ברירת מחדל 34'; לוחות א"י
+   * ההולכים אחר מדידת הרב מנת משתמשים ב-31' = 0.5166°).
    */
-  function adjustZenith(zenith, elevationMeters) {
+  function adjustZenith(zenith, elevationMeters, refractionDeg) {
     if (zenith === GEOMETRIC_ZENITH) {
-      return zenith + REFRACTION + SOLAR_RADIUS + elevationDip(elevationMeters);
+      var refr = (refractionDeg != null) ? refractionDeg : REFRACTION;
+      return zenith + refr + SOLAR_RADIUS + elevationDip(elevationMeters);
     }
     return zenith;
   }
@@ -142,8 +145,8 @@
    * @param {number} elevationMeters — גובה (משפיע רק כשהזנית 90)
    * @returns {number|null} timestamp במילישניות UTC
    */
-  function sunEventUTC(year, month, day, lat, lon, zenith, isSunrise, elevationMeters) {
-    var adjZenith = adjustZenith(zenith, elevationMeters || 0);
+  function sunEventUTC(year, month, day, lat, lon, zenith, isSunrise, elevationMeters, refractionDeg) {
+    var adjZenith = adjustZenith(zenith, elevationMeters || 0, refractionDeg);
     // ניחוש ראשון: חצות שמש מקומית לפי קו האורך
     var utcMinutes = 720 - 4 * lon;
     // שתי איטרציות עידון מספיקות לדיוק של שבריר שנייה

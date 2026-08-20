@@ -16,8 +16,8 @@
   /** סדר הצגת הזמנים ושמותיהם */
   var ZMAN_ORDER = [
     'alos', 'alos2', 'misheyakir', 'sunrise',
-    'sofShmaMGA', 'sofShmaGRA', 'sofTfilaMGA', 'sofTfilaGRA',
-    'chatzos', 'minchaGedola', 'minchaKetana', 'plag',
+    'sofShmaMGA2', 'sofShmaMGA', 'sofShmaGRA', 'sofTfilaMGA2', 'sofTfilaMGA', 'sofTfilaGRA',
+    'chatzos', 'minchaGedola', 'minchaKetana', 'plag', 'seudah',
     'candles', 'sunset', 'sunset2', 'tzeis', 'tzeisShabbat', 'tzeisRT', 'tzeisRT2', 'chatzosNight'
   ];
 
@@ -26,14 +26,17 @@
     alos2: 'עלות השחר ב׳ (לקולא)',
     misheyakir: 'משיכיר (טלית ותפילין)',
     sunrise: 'הנץ החמה',
+    sofShmaMGA2: 'סוף זמן ק״ש — מג״א לחומרא',
     sofShmaMGA: 'סוף זמן ק״ש — מג״א',
     sofShmaGRA: 'סוף זמן ק״ש — גר״א',
+    sofTfilaMGA2: 'סוף זמן תפילה — מג״א לחומרא',
     sofTfilaMGA: 'סוף זמן תפילה — מג״א',
     sofTfilaGRA: 'סוף זמן תפילה — גר״א',
     chatzos: 'חצות היום',
     minchaGedola: 'מנחה גדולה',
     minchaKetana: 'מנחה קטנה',
     plag: 'פלג המנחה',
+    seudah: 'סו״ז סעודה לפני ערבית',
     candles: 'הדלקת נרות',
     sunset: 'שקיעת החמה',
     sunset2: 'שקיעה מהגובה (זהירות מלהקל)',
@@ -95,12 +98,30 @@
         'חצות אמיתי, מנחה גדולה — המאוחר, מוצ״ש 8.5°, ר״ת 72 במעלות (16.1°) ולצדו 72 שוות מהגובה.',
       elevation: 'sea',
       candlesRef: 'sunset2',
+      refraction: 0.5166,
       mgaDayStart: { type: 'degrees', angle: 19.8, ref: 'sunrise' },
       mgaDayEnd: { type: 'degrees', angle: 19.8, ref: 'sunset' },
       zmanim: Object.assign(baseZmanim(), {
         alos: { type: 'degrees', angle: 19.8, ref: 'sunrise' },
         alos2: { type: 'degrees', angle: 16.1, ref: 'sunrise' },
         misheyakir: { type: 'degrees', angle: 11.5, ref: 'sunrise' },
+        sofShmaMGA2: {
+          type: 'shaosSpan', hours: 3,
+          start: { type: 'degrees', angle: 19.8, ref: 'sunrise' },
+          end: { type: 'degrees', angle: 6.45, ref: 'sunset' },
+          label: 'היום מעלות 90 במעלות עד צאת 6.45°'
+        },
+        sofTfilaMGA2: {
+          type: 'shaosSpan', hours: 4,
+          start: { type: 'degrees', angle: 19.8, ref: 'sunrise' },
+          end: { type: 'degrees', angle: 6.45, ref: 'sunset' },
+          label: 'היום מעלות 90 במעלות עד צאת 6.45°'
+        },
+        seudah: {
+          type: 'offset', minutes: -30,
+          base: { type: 'degrees', angle: 3.65, ref: 'sunset' },
+          label: '30 דק׳ לפני צאה״כ 13.5 דק׳ במעלות (3.65°)'
+        },
         sunset2: { type: 'sunset', elevation: 'visible' },
         tzeis: { type: 'degrees', angle: 4.61, ref: 'sunset' },
         tzeisShabbat: { type: 'degrees', angle: 8.5, ref: 'sunset' },
