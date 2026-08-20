@@ -31,6 +31,15 @@
    * @returns {Object} מפה של key -> timestamp (או null)
    */
   function computeDay(d, loc, method) {
+    // ערי הגובה: שיטות מסוימות (חזון שמים) נוהגות אחרת בירושלים, בית שמש,
+    // ביתר עילית ומודיעין עילית — שם מתחשבים בגובה לשקיעה, נרות ור"ת.
+    if (method.highCityOverrides && loc.highCustom) {
+      var merged = Object.assign({}, method, method.highCityOverrides);
+      merged.zmanim = Object.assign({}, method.zmanim, method.highCityOverrides.zmanim || {});
+      delete merged.highCityOverrides;
+      method = merged;
+    }
+
     var elev = loc.elevation || 0;
     var useElev = (method.elevation || 'visible') === 'visible';
 
@@ -214,7 +223,7 @@
       case 'seasonal': {
         var m2 = Math.abs(rule.minutes);
         var dir2 = rule.minutes < 0 ? 'לפני' : 'אחרי';
-        var refName2 = rule.ref === 'sunset' ? 'השקיעה' : 'הזריחה';
+        var refName2 = rule.ref === 'sunset' ? 'השקיעה' : rule.ref === 'chatzos' ? 'חצות' : 'הזריחה';
         return m2 + ' דקות זמניות ' + dir2 + ' ' + refName2 + ' (' + (basisName[rule.basis] || 'גר״א') + ')';
       }
       case 'shaos':

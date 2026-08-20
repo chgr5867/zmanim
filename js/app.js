@@ -124,9 +124,14 @@
     var info = makeDayInfo(d);
     var result = ZmanimEngine.computeDay(d, loc, method);
     var candleMinutes = loc.candleMinutes || 18;
-    // חלק מהלוחות (עתים לבינה) מונים הדלקת נרות מהשקיעה מהגובה
-    var candlesBase = (method.candlesRef && result[method.candlesRef] != null)
-      ? result[method.candlesRef] : result.sunset;
+    // חלק מהלוחות (עתים לבינה) מונים הדלקת נרות מהשקיעה מהגובה;
+    // בחזון שמים — רק בערי הגובה (ירושלים, ב"ש, ביתר ומודיעין עילית)
+    var candlesRef = method.candlesRef;
+    if (loc.highCustom && method.highCityOverrides && method.highCityOverrides.candlesRef) {
+      candlesRef = method.highCityOverrides.candlesRef;
+    }
+    var candlesBase = (candlesRef && result[candlesRef] != null)
+      ? result[candlesRef] : result.sunset;
     var showCandles = info.isFriday || (info.erevChag && !info.isShabbat);
     var rows = [];
     var order = ZmanimMethods.ZMAN_ORDER;
@@ -146,7 +151,7 @@
         }
         if (mode === 'daily' && info.erevChag) name = 'הדלקת נרות (' + info.erevChag + ')';
         desc = candleMinutes + ' דקות לפני השקיעה' +
-          (method.candlesRef === 'sunset2' ? ' מהגובה' : '');
+          (candlesRef === 'sunset2' ? ' מהגובה' : '');
       } else {
         if (!(key in (method.zmanim || {}))) continue;
         // צאת שבת — רלוונטי רק ביום שבת (בתצוגה יומית)
@@ -477,8 +482,13 @@
     renderAll();
   }
 
+  /** ערי הגובה שנהגו בהן להתחשב בגובה לשקיעה (חזון שמים) */
+  function isHighCustomPlace(name) {
+    return /ירושלים|Jerusalem|בית שמש|Beit Shemesh|ביתר עילית|Beitar|מודיעין עילית|Modi'?in Illit/.test(name || '');
+  }
+
   /** השלמת גובה ואזור זמן ממקורות רשת (Open-Meteo) — עם נפילה חיננית */
-  function enrichAndSetLocation(name, lat, lon, candleMinutes, statusEl) {
+  function enrichAndSetLocation(name, lat, lon, candleMinutes, statusEl, fullName) {
     if (statusEl) statusEl.textContent = 'מאתר גובה ואזור זמן…';
     var url = 'https://api.open-meteo.com/v1/forecast?latitude=' + lat +
       '&longitude=' + lon + '&timezone=auto';
@@ -487,7 +497,8 @@
         name: name, lat: lat, lon: lon,
         elevation: (typeof meta.elevation === 'number') ? Math.round(meta.elevation) : 0,
         tz: meta.timezone || browserTZ(),
-        candleMinutes: candleMinutes
+        candleMinutes: candleMinutes,
+        highCustom: isHighCustomPlace(fullName || name) || undefined
       });
     }).catch(function () {
       setLocation({
@@ -519,10 +530,9 @@
   /** ניחוש מנהג הדלקת נרות לפי שם המקום */
   function guessCandleMinutes(displayName, countryCode) {
     var n = displayName || '';
-    if (/ירושלים|Jerusalem/.test(n)) return 40;
+    if (/ירושלים|Jerusalem|ביתר עילית|Beitar/.test(n)) return 40;
     if (/פתח תקווה|Petah/.test(n)) return 40;
-    if (/בני ברק|Bnei Brak|תל אביב|Tel Aviv/.test(n)) return 22;
-    if (/חיפה|Haifa/.test(n)) return 30;
+    if (/בני ברק|Bnei Brak|תל אביב|Tel Aviv|אשדוד|Ashdod|רמת גן|גבעתיים|חולון|בת ים/.test(n)) return 22;
     if (countryCode === 'il') return 30;
     return 18;
   }
@@ -554,7 +564,7 @@
           box.innerHTML = '<div class="addr-note">טוען נתוני מיקום…</div>';
           var cc = item.address && item.address.country_code;
           enrichAndSetLocation(shortAddressName(item), +item.lat, +item.lon,
-            guessCandleMinutes(item.display_name, cc), null);
+            guessCandleMinutes(item.display_name, cc), null, item.display_name);
           el('city-select').value = '';
           box.innerHTML = '';
         });
