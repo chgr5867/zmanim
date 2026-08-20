@@ -409,6 +409,8 @@
     el('view-daily').hidden = state.view !== 'daily';
     el('view-weekly').hidden = state.view !== 'weekly';
     el('view-compare').hidden = state.view !== 'compare';
+    // טבלאות רחבות — הכרטיס מתרחב לכל רוחב המסך
+    el('zmanim-card').classList.toggle('wide', state.view !== 'daily');
     var tabs = document.querySelectorAll('.view-tabs .tab');
     tabs.forEach(function (t) {
       t.classList.toggle('active', t.dataset.view === state.view);

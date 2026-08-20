@@ -371,6 +371,14 @@ tr.zman-passed .zman-time { opacity: 0.55; font-weight: 500; }
   margin: 0 -6px;
 }
 
+/* בתצוגות הטבלאות הרחבות הכרטיס נפרץ מעמודת התוכן לכל רוחב המסך,
+   כדי לצמצם את הצורך בגלילה אופקית */
+#zmanim-card.wide {
+  width: calc(100vw - 28px);
+  margin-inline-start: calc((100% - (100vw - 28px)) / 2);
+}
+#zmanim-card.wide .matrix-table { width: 100%; }
+
 .matrix-table {
   border-collapse: collapse;
   min-width: 100%;
