@@ -1,0 +1,20 @@
+{
+  "name": "זמני היום בהלכה",
+  "short_name": "זמני היום",
+  "description": "חישוב זמני היום ההלכתיים לפי מיקום מדויק, במגוון שיטות",
+  "lang": "he",
+  "dir": "rtl",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f2f5f9",
+  "theme_color": "#1a3a5c",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

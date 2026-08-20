@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#1a3a5c">
+  <title>זמני היום בהלכה</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="stylesheet" href="css/style.css?v=3">
+</head>
+<body>
+  <header class="app-header">
+    <div class="header-inner">
+      <h1>🕰️ זמני היום</h1>
+      <div class="date-line">
+        <button id="btn-prev-day" class="icon-btn" title="יום קודם" aria-label="יום קודם">▶</button>
+        <div class="date-display">
+          <div id="hebrew-date" class="hebrew-date">—</div>
+          <div id="greg-date" class="greg-date">—</div>
+        </div>
+        <button id="btn-next-day" class="icon-btn" title="יום הבא" aria-label="יום הבא">◀</button>
+      </div>
+      <div class="date-tools">
+        <input type="date" id="date-picker" aria-label="בחירת תאריך">
+        <button id="btn-today" class="small-btn">היום</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- מיקום -->
+    <section class="card" id="location-card">
+      <div class="card-title-row">
+        <h2>📍 מיקום</h2>
+        <button id="btn-geolocate" class="small-btn primary">איתור אוטומטי</button>
+      </div>
+      <div id="location-status" class="muted small"></div>
+      <div class="field-row">
+        <label for="city-select">עיר:</label>
+        <select id="city-select">
+          <option value="">— בחירת עיר —</option>
+        </select>
+      </div>
+      <div class="field-row">
+        <input type="text" id="address-input" class="grow" placeholder="או חיפוש כתובת מדויקת: רחוב, מספר, עיר…" autocomplete="street-address">
+        <button id="btn-address-search" class="small-btn">חיפוש</button>
+      </div>
+      <div id="address-results" class="address-results"></div>
+      <details id="manual-location">
+        <summary>הזנת מיקום ידנית</summary>
+        <div class="field-grid">
+          <label>קו רוחב <input type="number" id="input-lat" step="0.0001" min="-89.9" max="89.9"></label>
+          <label>קו אורך <input type="number" id="input-lon" step="0.0001" min="-180" max="180"></label>
+          <label>גובה (מ׳) <input type="number" id="input-elev" step="1" min="-430" max="9000"></label>
+          <label>אזור זמן
+            <select id="tz-select"></select>
+          </label>
+        </div>
+        <button id="btn-apply-manual" class="small-btn">עדכון מיקום</button>
+      </details>
+    </section>
+
+    <!-- שיטה -->
+    <section class="card" id="method-card">
+      <div class="card-title-row">
+        <h2>📖 שיטת החישוב</h2>
+        <button id="btn-edit-custom" class="small-btn">שיטה אישית ⚙️</button>
+      </div>
+      <div class="field-row">
+        <select id="method-select" aria-label="בחירת שיטה"></select>
+      </div>
+      <p id="method-description" class="muted small"></p>
+    </section>
+
+    <!-- זמנים -->
+    <section class="card" id="zmanim-card">
+      <h2 class="sr-only">זמני היום</h2>
+      <div class="view-tabs" role="tablist" aria-label="תצוגה">
+        <button class="tab active" data-view="daily" role="tab">יומי</button>
+        <button class="tab" data-view="weekly" role="tab">שבועי</button>
+        <button class="tab" data-view="compare" role="tab">השוואת שיטות</button>
+      </div>
+      <div id="view-daily">
+        <table class="zmanim-table" id="zmanim-table">
+          <tbody></tbody>
+        </table>
+      </div>
+      <div id="view-weekly" hidden>
+        <p class="muted small" id="weekly-title"></p>
+        <div class="table-scroll">
+          <table class="matrix-table" id="weekly-table"></table>
+        </div>
+      </div>
+      <div id="view-compare" hidden>
+        <p class="muted small" id="compare-title"></p>
+        <div class="table-scroll">
+          <table class="matrix-table" id="compare-table"></table>
+        </div>
+      </div>
+      <p class="muted small" id="elevation-note"></p>
+    </section>
+
+    <p class="disclaimer">
+      הזמנים מחושבים אסטרונומית ואינם תחליף לפסיקת הלכה.
+      לקביעת הלכה למעשה יש להיוועץ במורה הוראה. אין לסמוך על החישוב סמוך לגבול הזמן.
+    </p>
+  </main>
+
+  <!-- עורך שיטה אישית -->
+  <div class="modal-backdrop" id="custom-modal" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="custom-modal-title">
+      <div class="modal-header">
+        <h2 id="custom-modal-title">שיטה בהתאמה אישית</h2>
+        <button id="btn-close-custom" class="icon-btn" aria-label="סגירה">✕</button>
+      </div>
+      <p class="muted small">בחרו כיצד לחשב כל זמן. השינויים נשמרים במכשיר.</p>
+      <div id="custom-editor"></div>
+      <div class="modal-footer">
+        <button id="btn-save-custom" class="small-btn primary">שמירה ושימוש בשיטה</button>
+        <button id="btn-reset-custom" class="small-btn">איפוס לברירת מחדל</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/solar.js?v=3"></script>
+  <script src="js/engine.js?v=3"></script>
+  <script src="js/methods.js?v=3"></script>
+  <script src="js/cities.js?v=3"></script>
+  <script src="js/hebrew.js?v=3"></script>
+  <script src="js/app.js?v=3"></script>
+</body>
+</html>
