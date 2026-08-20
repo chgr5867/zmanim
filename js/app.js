@@ -403,9 +403,144 @@
     table.appendChild(tbody);
   }
 
+  /** גבולות החודש העברי המכיל את התאריך: א׳ בחודש ומספר ימיו (29/30) */
+  function hebrewMonthRange(d) {
+    var start = d;
+    for (var i = 0; i < 31; i++) {
+      if (HebrewUtils.hebrewParts(dateAtNoonUTC(start), 'UTC').day === 1) break;
+      start = shiftDate(start, -1);
+    }
+    var days = 1;
+    var cur = shiftDate(start, 1);
+    for (var j = 0; j < 31; j++) {
+      if (HebrewUtils.hebrewParts(dateAtNoonUTC(cur), 'UTC').day === 1) break;
+      days++;
+      cur = shiftDate(cur, 1);
+    }
+    return { start: start, days: days };
+  }
+
+  function renderMonthly() {
+    var method = currentMethod();
+    var loc = state.loc;
+    var range = hebrewMonthRange(state.date);
+    var today = todayInTZ(loc.tz);
+
+    // כותרת: חודש עברי + שנה + חודשים לועזיים
+    var startNoon = dateAtNoonUTC(range.start);
+    var endNoon = dateAtNoonUTC(shiftDate(range.start, range.days - 1));
+    var monthName = new Intl.DateTimeFormat('he-u-ca-hebrew', { month: 'long', timeZone: 'UTC' }).format(startNoon);
+    var hebYear = 0;
+    new Intl.DateTimeFormat('en-u-ca-hebrew', { year: 'numeric', timeZone: 'UTC' })
+      .formatToParts(startNoon).forEach(function (p) { if (p.type === 'year') hebYear = +p.value; });
+    var gregFmt = new Intl.DateTimeFormat('he-IL', { month: 'long', year: 'numeric', timeZone: 'UTC' });
+    var gregStart = gregFmt.format(startNoon);
+    var gregEnd = gregFmt.format(endNoon);
+    el('monthly-title').textContent = monthName + ' ' + HebrewUtils.gematria(hebYear % 1000) +
+      ' · ' + (gregStart === gregEnd ? gregStart : gregStart + ' – ' + gregEnd) + ' · ' + method.name;
+
+    // חישוב כל ימי החודש
+    var days = [];
+    for (var i = 0; i < range.days; i++) {
+      var d = shiftDate(range.start, i);
+      days.push({
+        d: d,
+        info: makeDayInfo(d),
+        result: ZmanimEngine.computeDay(d, loc, method)
+      });
+    }
+
+    var table = el('monthly-table');
+    table.innerHTML = '';
+
+    var thead = document.createElement('thead');
+    var hr = document.createElement('tr');
+    WEEKDAY_LETTERS.forEach(function (w) {
+      var th = document.createElement('th');
+      th.textContent = w;
+      hr.appendChild(th);
+    });
+    thead.appendChild(hr);
+    table.appendChild(thead);
+
+    var tbody = document.createElement('tbody');
+    var tr = document.createElement('tr');
+    // משבצות ריקות עד היום הראשון של החודש
+    for (var e = 0; e < days[0].info.dow; e++) {
+      var empty = document.createElement('td');
+      empty.className = 'mcell mcell-empty';
+      tr.appendChild(empty);
+    }
+
+    days.forEach(function (day) {
+      var td = document.createElement('td');
+      td.className = 'mcell';
+      if (isSameDate(day.d, today)) td.className += ' mcell-today';
+      if (day.info.isShabbat) td.className += ' mcell-shabbat';
+
+      var dates = document.createElement('div');
+      dates.className = 'mcell-dates';
+      var heb = document.createElement('span');
+      heb.className = 'm-heb';
+      heb.textContent = HebrewUtils.gematria(HebrewUtils.hebrewParts(day.info.noon, 'UTC').day);
+      var greg = document.createElement('span');
+      greg.className = 'm-greg';
+      greg.textContent = day.d.day + '.' + day.d.month;
+      dates.appendChild(heb);
+      dates.appendChild(greg);
+      td.appendChild(dates);
+
+      var sr = document.createElement('div');
+      sr.className = 'm-zman';
+      sr.innerHTML = '<span class="m-ico">🌅</span><span class="m-time">' +
+        HebrewUtils.formatTime(day.result.sunrise, loc.tz) + '</span>';
+      td.appendChild(sr);
+
+      var ss = document.createElement('div');
+      ss.className = 'm-zman';
+      ss.innerHTML = '<span class="m-ico">🌇</span><span class="m-time">' +
+        HebrewUtils.formatTime(day.result.sunset, loc.tz) + '</span>';
+      td.appendChild(ss);
+
+      var showCandles = day.info.isFriday || (day.info.erevChag && !day.info.isShabbat);
+      if (showCandles && day.result.candles != null) {
+        var ca = document.createElement('div');
+        ca.className = 'm-candles';
+        ca.innerHTML = '<span class="m-ico">🕯️</span><span class="m-time">' +
+          HebrewUtils.formatTime(day.result.candles, loc.tz) + '</span>';
+        if (day.info.erevChag) ca.title = day.info.erevChag;
+        td.appendChild(ca);
+        if (day.info.erevChag) {
+          var chagLabel = document.createElement('div');
+          chagLabel.className = 'm-chag';
+          chagLabel.textContent = day.info.erevChag;
+          td.appendChild(chagLabel);
+        }
+      }
+
+      tr.appendChild(td);
+      if (day.info.dow === 6) {
+        tbody.appendChild(tr);
+        tr = document.createElement('tr');
+      }
+    });
+
+    // השלמת השבוע האחרון
+    if (tr.children.length) {
+      while (tr.children.length < 7) {
+        var pad = document.createElement('td');
+        pad.className = 'mcell mcell-empty';
+        tr.appendChild(pad);
+      }
+      tbody.appendChild(tr);
+    }
+    table.appendChild(tbody);
+  }
+
   function renderActiveView() {
     el('view-daily').hidden = state.view !== 'daily';
     el('view-weekly').hidden = state.view !== 'weekly';
+    el('view-monthly').hidden = state.view !== 'monthly';
     el('view-compare').hidden = state.view !== 'compare';
     // טבלאות רחבות — הכרטיס מתרחב לכל רוחב המסך
     el('zmanim-card').classList.toggle('wide', state.view !== 'daily');
@@ -415,6 +550,7 @@
     });
     if (state.view === 'daily') renderDaily();
     else if (state.view === 'weekly') renderWeekly();
+    else if (state.view === 'monthly') renderMonthly();
     else renderCompare();
 
     // הערת גובה
@@ -804,11 +940,20 @@
     });
 
     el('btn-prev-day').addEventListener('click', function () {
-      state.date = shiftDate(state.date, state.view === 'weekly' ? -7 : -1);
+      if (state.view === 'monthly') {
+        state.date = shiftDate(hebrewMonthRange(state.date).start, -1);
+      } else {
+        state.date = shiftDate(state.date, state.view === 'weekly' ? -7 : -1);
+      }
       renderAll();
     });
     el('btn-next-day').addEventListener('click', function () {
-      state.date = shiftDate(state.date, state.view === 'weekly' ? 7 : 1);
+      if (state.view === 'monthly') {
+        var r = hebrewMonthRange(state.date);
+        state.date = shiftDate(r.start, r.days);
+      } else {
+        state.date = shiftDate(state.date, state.view === 'weekly' ? 7 : 1);
+      }
       renderAll();
     });
     el('btn-today').addEventListener('click', function () {

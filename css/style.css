@@ -426,6 +426,66 @@ tr.zman-passed .zman-time { opacity: 0.55; font-weight: 500; }
 .matrix-table thead th .day-heb { display: block; font-weight: 700; color: var(--text); font-size: 0.8rem; }
 .matrix-table thead th .day-greg { display: block; font-size: 0.68rem; }
 
+/* ===== לוח חודשי ===== */
+.month-table {
+  border-collapse: collapse;
+  width: 100%;
+  min-width: 588px;
+  table-layout: fixed;
+}
+.month-table thead th {
+  font-size: 0.78rem;
+  color: var(--muted);
+  padding: 4px 2px;
+  border-bottom: 2px solid var(--border);
+}
+.month-table thead th:last-child { color: var(--accent); font-weight: 700; }
+
+.mcell {
+  border: 1px solid var(--border);
+  vertical-align: top;
+  padding: 4px 5px;
+  height: 74px;
+  font-size: 0.72rem;
+}
+.mcell-empty { background: var(--bg); }
+.mcell-shabbat { background: color-mix(in srgb, var(--highlight) 45%, transparent); }
+.mcell-today {
+  outline: 2px solid var(--highlight-border);
+  outline-offset: -2px;
+  background: var(--highlight);
+}
+
+.mcell-dates {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 3px;
+}
+.m-heb { font-weight: 700; font-size: 0.88rem; }
+.m-greg { color: var(--muted); font-size: 0.66rem; direction: ltr; }
+
+.m-zman, .m-candles {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  line-height: 1.35;
+  white-space: nowrap;
+}
+.m-ico { font-size: 0.62rem; }
+.m-time {
+  direction: ltr;
+  font-variant-numeric: tabular-nums;
+}
+.m-candles { color: var(--accent); font-weight: 700; }
+.m-chag {
+  font-size: 0.6rem;
+  color: var(--accent);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 /* ===== תוצאות חיפוש כתובת ===== */
 .address-results { margin-top: 4px; }
 .address-results .addr-item {

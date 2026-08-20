@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#1a3a5c">
   <title>זמני היום בהלכה</title>
   <link rel="manifest" href="manifest.webmanifest">
-  <link rel="stylesheet" href="css/style.css?v=15">
+  <link rel="stylesheet" href="css/style.css?v=16">
 </head>
 <body>
   <header class="app-header">
@@ -87,12 +87,20 @@
       <div class="view-tabs" role="tablist" aria-label="תצוגה">
         <button class="tab active" data-view="daily" role="tab">יומי</button>
         <button class="tab" data-view="weekly" role="tab">שבועי</button>
+        <button class="tab" data-view="monthly" role="tab">חודשי</button>
         <button class="tab" data-view="compare" role="tab">השוואת שיטות</button>
       </div>
       <div id="view-daily">
         <table class="zmanim-table" id="zmanim-table">
           <tbody></tbody>
         </table>
+      </div>
+      <div id="view-monthly" hidden>
+        <p class="muted small" id="monthly-title"></p>
+        <div class="table-scroll">
+          <table class="month-table" id="monthly-table"></table>
+        </div>
+        <p class="muted small">🕯️ הדלקת נרות בערבי שבתות וחגים · הזריחה והשקיעה לפי השיטה הנבחרת</p>
       </div>
       <div id="view-weekly" hidden>
         <p class="muted small" id="weekly-title"></p>
@@ -131,12 +139,12 @@
     </div>
   </div>
 
-  <script src="js/solar.js?v=15"></script>
-  <script src="js/engine.js?v=15"></script>
-  <script src="js/methods.js?v=15"></script>
-  <script src="js/cities.js?v=15"></script>
-  <script src="js/hebrew.js?v=15"></script>
-  <script src="js/parasha.js?v=15"></script>
-  <script src="js/app.js?v=15"></script>
+  <script src="js/solar.js?v=16"></script>
+  <script src="js/engine.js?v=16"></script>
+  <script src="js/methods.js?v=16"></script>
+  <script src="js/cities.js?v=16"></script>
+  <script src="js/hebrew.js?v=16"></script>
+  <script src="js/parasha.js?v=16"></script>
+  <script src="js/app.js?v=16"></script>
 </body>
 </html>
