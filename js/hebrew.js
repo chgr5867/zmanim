@@ -147,6 +147,71 @@
     return EREV_CHAGIM[p.month + '-' + p.day] || null;
   }
 
+  /** מספר השנה העברית (למשל 5786) של תאריך לועזי */
+  function hebrewYearNum(dateObj) {
+    var parts = new Intl.DateTimeFormat('en-u-ca-hebrew', { year: 'numeric', timeZone: 'UTC' })
+      .formatToParts(dateObj);
+    for (var i = 0; i < parts.length; i++) {
+      if (parts[i].type === 'year') return +parts[i].value;
+    }
+    return 0;
+  }
+
+  var _yearMonthsCache = {};
+
+  /**
+   * חודשי שנה עברית נתונה, לפי הסדר, על ידי סריקת הימים מסביב לראש השנה.
+   * מחזיר [{en, he, start:{year,month,day}, days}] — en לזיהוי, he להצגה.
+   */
+  function monthsOfHebrewYear(hebYear) {
+    if (_yearMonthsCache[hebYear]) return _yearMonthsCache[hebYear];
+    var enFmt = new Intl.DateTimeFormat('en-u-ca-hebrew', {
+      year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC'
+    });
+    var heFmt = new Intl.DateTimeFormat('he-u-ca-hebrew', { month: 'long', timeZone: 'UTC' });
+    // ראש השנה של hebYear חל בספטמבר–אוקטובר של השנה הלועזית hebYear-3761;
+    // סורקים מ-15 באוגוסט 390 ימים — מכסה גם שנה מעוברת (385 ימים).
+    var startMs = Date.UTC(hebYear - 3761, 7, 15, 12);
+    var months = [], current = null;
+    for (var i = 0; i < 400; i++) {
+      var dt = new Date(startMs + i * 86400000);
+      var year = 0, month = '', day = 0;
+      var parts = enFmt.formatToParts(dt);
+      for (var j = 0; j < parts.length; j++) {
+        if (parts[j].type === 'year') year = +parts[j].value;
+        if (parts[j].type === 'month') month = parts[j].value;
+        if (parts[j].type === 'day') day = +parts[j].value;
+      }
+      if (year < hebYear) continue;
+      if (year > hebYear) break;
+      if (!current || current.en !== month) {
+        current = {
+          en: month, he: heFmt.format(dt), days: 0,
+          start: { year: dt.getUTCFullYear(), month: dt.getUTCMonth() + 1, day: dt.getUTCDate() }
+        };
+        // הסריקה מתחילה באמצע אלול של השנה הקודמת, כך שכל חודש נתפס מיומו הראשון
+        if (day !== 1) current._partial = true;
+        months.push(current);
+      }
+      current.days = day > current.days ? day : current.days;
+    }
+    _yearMonthsCache[hebYear] = months;
+    return months;
+  }
+
+  /** תאריך לועזי {year,month,day} של יום עברי נתון (או null אם אינו קיים) */
+  function findGregorian(hebYear, monthEn, hebDay) {
+    var months = monthsOfHebrewYear(hebYear);
+    for (var i = 0; i < months.length; i++) {
+      if (months[i].en !== monthEn) continue;
+      if (hebDay < 1 || hebDay > months[i].days) return null;
+      var s = months[i].start;
+      var dt = new Date(Date.UTC(s.year, s.month - 1, s.day + hebDay - 1, 12));
+      return { year: dt.getUTCFullYear(), month: dt.getUTCMonth() + 1, day: dt.getUTCDate() };
+    }
+    return null;
+  }
+
   global.HebrewUtils = {
     hebrewDate: hebrewDate,
     hebrewDateShort: hebrewDateShort,
@@ -156,6 +221,9 @@
     formatTime: formatTime,
     dayOfWeek: dayOfWeek,
     hebrewParts: hebrewParts,
-    erevChagName: erevChagName
+    erevChagName: erevChagName,
+    hebrewYearNum: hebrewYearNum,
+    monthsOfHebrewYear: monthsOfHebrewYear,
+    findGregorian: findGregorian
   };
 })(typeof window !== 'undefined' ? window : globalThis);

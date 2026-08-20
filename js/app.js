@@ -5,16 +5,18 @@
 (function () {
   'use strict';
 
-  var STORAGE_KEY = 'zmanim-app-state-v1';
+  var STORAGE_KEY = ZmanimCommon.STORAGE_KEY;
 
   var state = {
     date: null,          // {year, month, day} — תאריך אזרחי מוצג
     loc: null,           // {name, lat, lon, elevation, tz, candleMinutes}
     methodId: 'itim-levina',
     lastPresetId: 'itim-levina',
-    view: 'daily',       // daily | weekly | compare
+    view: 'daily',       // daily | weekly | monthly | compare
     customMethod: null,
-    customSelections: {}
+    customSelections: {},
+    settingsOpen: true,  // האם כרטיסי המיקום/שיטה פתוחים
+    theme: 'auto'        // auto | light | dark
   };
 
   // ---------- אחסון ----------
@@ -27,7 +29,9 @@
         lastPresetId: state.lastPresetId,
         view: state.view,
         customMethod: state.customMethod,
-        customSelections: state.customSelections
+        customSelections: state.customSelections,
+        settingsOpen: state.settingsOpen,
+        theme: state.theme
       }));
     } catch (e) { /* אחסון לא זמין */ }
   }
@@ -43,44 +47,21 @@
       if (saved.view) state.view = saved.view;
       if (saved.customMethod) state.customMethod = saved.customMethod;
       if (saved.customSelections) state.customSelections = saved.customSelections;
+      if (typeof saved.settingsOpen === 'boolean') state.settingsOpen = saved.settingsOpen;
+      if (saved.theme) state.theme = saved.theme;
     } catch (e) { /* התעלמות */ }
   }
 
-  // ---------- תאריכים ----------
+  // ---------- תאריכים (הפונקציות המשותפות ב-common.js) ----------
 
-  function browserTZ() {
-    try {
-      return Intl.DateTimeFormat().resolvedOptions().timeZone || 'Asia/Jerusalem';
-    } catch (e) {
-      return 'Asia/Jerusalem';
-    }
-  }
-
-  function todayInTZ(tz) {
-    var s = new Intl.DateTimeFormat('en-CA', {
-      year: 'numeric', month: '2-digit', day: '2-digit', timeZone: tz
-    }).format(new Date());
-    var parts = s.split('-');
-    return { year: +parts[0], month: +parts[1], day: +parts[2] };
-  }
-
-  function shiftDate(d, days) {
-    var nd = new Date(Date.UTC(d.year, d.month - 1, d.day + days, 12));
-    return { year: nd.getUTCFullYear(), month: nd.getUTCMonth() + 1, day: nd.getUTCDate() };
-  }
+  var browserTZ = ZmanimCommon.browserTZ;
+  var todayInTZ = ZmanimCommon.todayInTZ;
+  var shiftDate = ZmanimCommon.shiftDate;
+  var dateAtNoonUTC = ZmanimCommon.noonUTC;
+  var isSameDate = ZmanimCommon.isSameDate;
 
   function dateToInputValue(d) {
-    function pad(n) { return (n < 10 ? '0' : '') + n; }
-    return d.year + '-' + pad(d.month) + '-' + pad(d.day);
-  }
-
-  /** צהרי היום האזרחי — לתאריך עברי ויום בשבוע (מפוענחים ב-UTC) */
-  function dateAtNoonUTC(d) {
-    return new Date(Date.UTC(d.year, d.month - 1, d.day, 12));
-  }
-
-  function isSameDate(a, b) {
-    return a.year === b.year && a.month === b.month && a.day === b.day;
+    return d.year + '-' + ZmanimCommon.pad2(d.month) + '-' + ZmanimCommon.pad2(d.day);
   }
 
   // ---------- שיטות ----------
@@ -197,6 +178,84 @@
     el('input-elev').value = Math.round(loc.elevation || 0);
     var tzSel = el('tz-select');
     if (tzSel && tzSel.options.length) tzSel.value = loc.tz;
+  }
+
+  /** שורת הסיכום וכרטיסי ההגדרות — מכווצים אחרי שהמיקום הוגדר */
+  function renderSettingsPanels() {
+    var summary = el('settings-summary');
+    var cards = el('settings-cards');
+    summary.hidden = false;
+    cards.hidden = !state.settingsOpen;
+    summary.setAttribute('aria-expanded', String(state.settingsOpen));
+    summary.querySelector('.chev').textContent = state.settingsOpen ? '▴' : '▾';
+    el('summary-text').textContent = (state.loc.name || 'מיקום מותאם') + ' · ' +
+      currentMethod().name.split(' — ')[0];
+  }
+
+  // ---------- מצב תצוגה (בהיר/כהה) ----------
+
+  var THEME_LABELS = { auto: 'אוטומטי (לפי המערכת)', light: 'בהיר', dark: 'כהה' };
+
+  function applyTheme() {
+    var root = document.documentElement;
+    if (state.theme === 'light' || state.theme === 'dark') {
+      root.setAttribute('data-theme', state.theme);
+    } else {
+      root.removeAttribute('data-theme');
+    }
+    var btn = el('btn-theme');
+    if (btn) btn.title = 'מצב תצוגה: ' + THEME_LABELS[state.theme];
+  }
+
+  function cycleTheme() {
+    state.theme = state.theme === 'auto' ? 'dark' : state.theme === 'dark' ? 'light' : 'auto';
+    applyTheme();
+    saveState();
+    showToast('מצב תצוגה: ' + THEME_LABELS[state.theme]);
+  }
+
+  // ---------- הודעה קופצת ----------
+
+  var toastTimer = null;
+
+  function showToast(msg) {
+    var t = el('toast');
+    t.textContent = msg;
+    t.hidden = false;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { t.hidden = true; }, 3500);
+  }
+
+  // ---------- שיתוף ----------
+
+  function buildShareText() {
+    var noon = dateAtNoonUTC(state.date);
+    var lines = [];
+    lines.push('זמני היום — ' + HebrewUtils.weekdayName(noon, 'UTC') + ', ' +
+      HebrewUtils.hebrewDate(noon, 'UTC') + ' (' + HebrewUtils.gregorianDate(noon, 'UTC') + ')');
+    lines.push((state.loc.name || 'מיקום מותאם') + ' · ' + currentMethod().name.split(' — ')[0]);
+    lines.push('');
+    var rows = computeRows(state.date, state.loc, currentMethod(), 'daily').rows;
+    rows.forEach(function (r) {
+      if (r.time == null) return;
+      lines.push(r.name + ': ' + HebrewUtils.formatTime(r.time, state.loc.tz));
+    });
+    return lines.join('\n');
+  }
+
+  function shareDay() {
+    var text = buildShareText();
+    if (navigator.share) {
+      navigator.share({ text: text }).catch(function () { /* המשתמש ביטל */ });
+    } else if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(function () {
+        showToast('זמני היום הועתקו — אפשר להדביק בכל מקום');
+      }, function () {
+        showToast('ההעתקה נכשלה');
+      });
+    } else {
+      showToast('שיתוף אינו נתמך בדפדפן זה');
+    }
   }
 
   function renderDaily() {
@@ -553,13 +612,13 @@
 
       var sr = document.createElement('div');
       sr.className = 'm-zman';
-      sr.innerHTML = '<span class="m-ico">🌅</span><span class="m-time">' +
+      sr.innerHTML = '<svg class="m-ico"><use href="#i-sunrise"/></svg><span class="m-time">' +
         HebrewUtils.formatTime(day.result.sunrise, loc.tz) + '</span>';
       td.appendChild(sr);
 
       var ss = document.createElement('div');
       ss.className = 'm-zman';
-      ss.innerHTML = '<span class="m-ico">🌇</span><span class="m-time">' +
+      ss.innerHTML = '<svg class="m-ico"><use href="#i-sunset"/></svg><span class="m-time">' +
         HebrewUtils.formatTime(day.result.sunset, loc.tz) + '</span>';
       td.appendChild(ss);
 
@@ -567,7 +626,7 @@
       if (showCandles && day.result.candles != null) {
         var ca = document.createElement('div');
         ca.className = 'm-candles';
-        ca.innerHTML = '<span class="m-ico">🕯️</span><span class="m-time">' +
+        ca.innerHTML = '<svg class="m-ico"><use href="#i-candle"/></svg><span class="m-time">' +
           HebrewUtils.formatTime(day.result.candles, loc.tz) + '</span>';
         if (day.info.erevChag) ca.title = day.info.erevChag;
         td.appendChild(ca);
@@ -590,7 +649,7 @@
           var mo = document.createElement('div');
           mo.className = 'm-motzash';
           mo.title = day.info.isShabbat ? 'יציאת השבת' : 'יציאת החג';
-          mo.innerHTML = '<span class="m-ico">✨</span><span class="m-time">' +
+          mo.innerHTML = '<svg class="m-ico"><use href="#i-star"/></svg><span class="m-time">' +
             HebrewUtils.formatTime(motzash, loc.tz) + '</span>';
           td.appendChild(mo);
         }
@@ -624,7 +683,10 @@
     el('zmanim-card').classList.toggle('wide', state.view !== 'daily');
     var tabs = document.querySelectorAll('.view-tabs .tab');
     tabs.forEach(function (t) {
-      t.classList.toggle('active', t.dataset.view === state.view);
+      var active = t.dataset.view === state.view;
+      t.classList.toggle('active', active);
+      t.setAttribute('aria-selected', String(active));
+      t.tabIndex = active ? 0 : -1;
     });
     if (state.view === 'daily') renderDaily();
     else if (state.view === 'weekly') renderWeekly();
@@ -647,6 +709,7 @@
     renderHeader();
     renderMethodInfo();
     renderLocationStatus();
+    renderSettingsPanels();
     renderActiveView();
     miniDashMinute = -1;
     updateMiniDash();
@@ -701,6 +764,7 @@
   function setLocation(loc) {
     state.loc = loc;
     state.date = todayInTZ(loc.tz);
+    state.settingsOpen = false; // המיקום הוגדר — מכווצים את כרטיסי ההגדרות
     saveState();
     renderAll();
   }
@@ -1056,27 +1120,153 @@
     el('btn-edit-custom').addEventListener('click', function () {
       buildCustomEditor();
       el('custom-modal').hidden = false;
+      var firstField = el('custom-editor').querySelector('select');
+      if (firstField) firstField.focus();
     });
-    el('btn-close-custom').addEventListener('click', function () {
+    function closeCustomModal() {
       el('custom-modal').hidden = true;
-    });
+      el('btn-edit-custom').focus();
+    }
+    el('btn-close-custom').addEventListener('click', closeCustomModal);
     el('custom-modal').addEventListener('click', function (e) {
-      if (e.target === this) this.hidden = true;
+      if (e.target === this) closeCustomModal();
     });
     el('btn-save-custom').addEventListener('click', function () {
       saveCustomFromEditor();
-      el('custom-modal').hidden = true;
+      closeCustomModal();
     });
     el('btn-reset-custom').addEventListener('click', function () {
       state.customSelections = {};
       state.customMethod = null;
       buildCustomEditor();
     });
+
+    // Escape סוגר את המודאל או את קופץ התאריך העברי
+    document.addEventListener('keydown', function (e) {
+      if (e.key !== 'Escape') return;
+      if (!el('custom-modal').hidden) closeCustomModal();
+      else if (!el('hebdate-pop').hidden) toggleHebDatePop(false);
+    });
+
+    // ניווט מקלדת בין הלשוניות (חצים)
+    el('zmanim-card').querySelector('.view-tabs').addEventListener('keydown', function (e) {
+      if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+      var tabs = Array.prototype.slice.call(this.querySelectorAll('.tab'));
+      var idx = tabs.indexOf(document.activeElement);
+      if (idx < 0) return;
+      // RTL: חץ ימינה — הלשונית הקודמת, חץ שמאלה — הבאה
+      var next = e.key === 'ArrowRight' ? idx - 1 : idx + 1;
+      if (next < 0 || next >= tabs.length) return;
+      e.preventDefault();
+      tabs[next].focus();
+      tabs[next].click();
+    });
+
+    // כיווץ/פתיחת כרטיסי ההגדרות
+    el('settings-summary').addEventListener('click', function () {
+      state.settingsOpen = !state.settingsOpen;
+      saveState();
+      renderSettingsPanels();
+    });
+
+    el('btn-theme').addEventListener('click', cycleTheme);
+    el('btn-share').addEventListener('click', shareDay);
+    el('btn-print').addEventListener('click', function () { window.print(); });
+
+    // בתצוגת ההשוואה — לחיצה על תא מציגה את דרך החישוב (title לא זמין במגע)
+    el('compare-table').addEventListener('click', function (e) {
+      var td = e.target.closest ? e.target.closest('td.time-cell') : null;
+      if (td && td.title) showToast(td.title);
+    });
+
+    wireHebDatePicker();
+  }
+
+  // ---------- בורר תאריך עברי ----------
+
+  function toggleHebDatePop(open) {
+    var pop = el('hebdate-pop');
+    pop.hidden = !open;
+    el('btn-heb-date').setAttribute('aria-expanded', String(open));
+    if (open) populateHebDatePop();
+  }
+
+  function populateHebDatePop() {
+    var noon = dateAtNoonUTC(state.date);
+    var curYear = HebrewUtils.hebrewYearNum(noon);
+    var parts = HebrewUtils.hebrewParts(noon, 'UTC');
+    var yearSel = el('heb-year');
+    yearSel.innerHTML = '';
+    for (var y = curYear - 1; y <= curYear + 2; y++) {
+      var o = document.createElement('option');
+      o.value = y;
+      o.textContent = HebrewUtils.gematria(y % 1000);
+      yearSel.appendChild(o);
+    }
+    yearSel.value = curYear;
+    populateHebMonths(curYear, parts.month);
+    populateHebDays(parts.day);
+  }
+
+  function populateHebMonths(hebYear, selectedEn) {
+    var monthSel = el('heb-month');
+    monthSel.innerHTML = '';
+    HebrewUtils.monthsOfHebrewYear(hebYear).forEach(function (m) {
+      var o = document.createElement('option');
+      o.value = m.en;
+      o.textContent = m.he;
+      monthSel.appendChild(o);
+    });
+    if (selectedEn) monthSel.value = selectedEn;
+    if (!monthSel.value && monthSel.options.length) monthSel.selectedIndex = 0;
+  }
+
+  function populateHebDays(selectedDay) {
+    var daySel = el('heb-day');
+    daySel.innerHTML = '';
+    for (var d = 1; d <= 30; d++) {
+      var o = document.createElement('option');
+      o.value = d;
+      o.textContent = HebrewUtils.gematria(d);
+      daySel.appendChild(o);
+    }
+    daySel.value = selectedDay || 1;
+  }
+
+  function wireHebDatePicker() {
+    el('btn-heb-date').addEventListener('click', function () {
+      toggleHebDatePop(el('hebdate-pop').hidden);
+    });
+    el('heb-year').addEventListener('change', function () {
+      populateHebMonths(+this.value, el('heb-month').value);
+    });
+    el('btn-heb-go').addEventListener('click', function () {
+      var hebYear = +el('heb-year').value;
+      var monthEn = el('heb-month').value;
+      var day = +el('heb-day').value;
+      var months = HebrewUtils.monthsOfHebrewYear(hebYear);
+      var month = null;
+      for (var i = 0; i < months.length; i++) {
+        if (months[i].en === monthEn) { month = months[i]; break; }
+      }
+      if (!month) return;
+      if (day > month.days) {
+        day = month.days; // ל' בחודש חסר — היום האחרון בפועל
+        showToast('בחודש זה ' + month.days + ' ימים — מוצג ' + HebrewUtils.gematria(day) + ' בו');
+      }
+      var g = HebrewUtils.findGregorian(hebYear, monthEn, day);
+      if (!g) return;
+      state.date = g;
+      toggleHebDatePop(false);
+      renderAll();
+    });
   }
 
   function init() {
     loadState();
+    applyTheme();
     if (!state.loc) {
+      state.settingsOpen = true; // ביקור ראשון — מציגים את ההגדרות פתוחות
       var jm = ZmanimCities.getById('jerusalem');
       state.loc = {
         name: jm.name, lat: jm.lat, lon: jm.lon,
@@ -1108,9 +1298,23 @@
     // השעון הרץ בלוח המוקטן שבכותרת
     setInterval(updateMiniDash, 1000);
 
-    // רישום Service Worker לעבודה במצב לא מקוון (PWA)
+    // רישום Service Worker לעבודה במצב לא מקוון (PWA),
+    // עם הצגת פס "גרסה חדשה זמינה" כשעדכון הותקן ברקע
     if ('serviceWorker' in navigator && location.protocol !== 'file:') {
-      navigator.serviceWorker.register('sw.js').catch(function () { /* לא קריטי */ });
+      navigator.serviceWorker.register('sw.js').then(function (reg) {
+        reg.addEventListener('updatefound', function () {
+          var nw = reg.installing;
+          if (!nw) return;
+          nw.addEventListener('statechange', function () {
+            if (nw.state === 'installed' && navigator.serviceWorker.controller) {
+              el('update-bar').hidden = false;
+            }
+          });
+        });
+      }).catch(function () { /* לא קריטי */ });
+      el('btn-update-reload').addEventListener('click', function () {
+        location.reload();
+      });
     }
   }
 

@@ -2,23 +2,29 @@
  * sw.js — Service Worker: שמירת קבצי האפליקציה במטמון לעבודה במצב לא מקוון.
  * החישובים כולם מקומיים, כך שהאפליקציה עובדת מלאה גם ללא אינטרנט.
  */
-var CACHE_NAME = 'zmanim-cache-v21';
+var CACHE_NAME = 'zmanim-cache-v22';
 var ASSETS = [
   './',
   './index.html',
   './dashboard.html',
-  './css/style.css?v=21',
-  './css/dashboard.css?v=21',
-  './js/solar.js?v=21',
-  './js/engine.js?v=21',
-  './js/methods.js?v=21',
-  './js/cities.js?v=21',
-  './js/hebrew.js?v=21',
-  './js/parasha.js?v=21',
-  './js/app.js?v=21',
-  './js/dashboard.js?v=21',
+  './css/style.css?v=22',
+  './css/dashboard.css?v=22',
+  './js/solar.js?v=22',
+  './js/engine.js?v=22',
+  './js/methods.js?v=22',
+  './js/cities.js?v=22',
+  './js/hebrew.js?v=22',
+  './js/parasha.js?v=22',
+  './js/common.js?v=22',
+  './js/app.js?v=22',
+  './js/dashboard.js?v=22',
   './manifest.webmanifest',
-  './icon.svg'
+  './icon.svg',
+  './icons/icon-192.png',
+  './icons/icon-512.png',
+  './icons/apple-touch-icon.png',
+  './fonts/heebo-hebrew.woff2',
+  './fonts/heebo-latin.woff2'
 ];
 
 self.addEventListener('install', function (event) {

@@ -72,41 +72,6 @@
 
   var METHODS = [
     {
-      id: 'chazon-shamayim',
-      name: 'חזון שמים — מנהג א״י (אשכנז)',
-      description: 'מסלול "מנהג האשכנזים בא״י" של תוכנת חזון שמים (הרב איתן צקוני) — המנוע של רוב לוחות ישראל. ' +
-        'זמני האור במעלות: עלות 19.75° (90 דק׳), עלות ב׳ 16.02° (72 דק׳), משיכיר 11.5°. ' +
-        'זריחה ושקיעה מישוריות, חצות אסטרונומי, מנחה גדולה — חצות + המאוחר מבין 30 קבועות/זמניות, ' +
-        'מוצ״ש 8.5°, ר״ת 72 דק׳. בירושלים, בית שמש, ביתר עילית ומודיעין עילית — ' +
-        'השקיעה, הנרות ור״ת לפי גובה המקום, כמנהגם.',
-      elevation: 'sea',
-      refraction: 0.5166,
-      mgaDayStart: { type: 'degrees', angle: 19.75, ref: 'sunrise' },
-      mgaDayEnd: { type: 'degrees', angle: 19.75, ref: 'sunset' },
-      highCityOverrides: {
-        candlesRef: 'sunset2',
-        zmanim: {
-          tzeisRT: { type: 'fixed', minutes: 72, ref: 'sunsetVisible' }
-        }
-      },
-      zmanim: Object.assign(baseZmanim(), {
-        alos: { type: 'degrees', angle: 19.75, ref: 'sunrise' },
-        alos2: { type: 'degrees', angle: 16.02, ref: 'sunrise' },
-        misheyakir: { type: 'degrees', angle: 11.5, ref: 'sunrise' },
-        minchaGedola: {
-          type: 'later',
-          rules: [
-            { type: 'fixed', minutes: 30, ref: 'chatzos' },
-            { type: 'seasonal', minutes: 30, ref: 'chatzos', basis: 'gra' }
-          ]
-        },
-        sunset2: { type: 'sunset', elevation: 'visible' },
-        tzeis: { type: 'seasonal', minutes: 13.5, ref: 'sunset', basis: 'gra' },
-        tzeisShabbat: { type: 'degrees', angle: 8.5, ref: 'sunset' },
-        tzeisRT: { type: 'fixed', minutes: 72, ref: 'sunset' }
-      })
-    },
-    {
       id: 'itim-levina',
       name: 'עתים לבינה',
       description: 'לוח עתים לבינה (הרב דוד אהרן סופר, ירושלים) — כל זמני האור במעלות: ' +
@@ -152,6 +117,41 @@
         tzeisShabbat: { type: 'degrees', angle: 8.5, ref: 'sunset' },
         tzeisRT: { type: 'degrees', angle: 16.1, ref: 'sunset' },
         tzeisRT2: { type: 'fixed', minutes: 72, ref: 'sunsetVisible' }
+      })
+    },
+    {
+      id: 'chazon-shamayim',
+      name: 'חזון שמים — מנהג א״י (אשכנז)',
+      description: 'מסלול "מנהג האשכנזים בא״י" של תוכנת חזון שמים (הרב איתן צקוני) — המנוע של רוב לוחות ישראל. ' +
+        'זמני האור במעלות: עלות 19.75° (90 דק׳), עלות ב׳ 16.02° (72 דק׳), משיכיר 11.5°. ' +
+        'זריחה ושקיעה מישוריות, חצות אסטרונומי, מנחה גדולה — חצות + המאוחר מבין 30 קבועות/זמניות, ' +
+        'מוצ״ש 8.5°, ר״ת 72 דק׳. בירושלים, בית שמש, ביתר עילית ומודיעין עילית — ' +
+        'השקיעה, הנרות ור״ת לפי גובה המקום, כמנהגם.',
+      elevation: 'sea',
+      refraction: 0.5166,
+      mgaDayStart: { type: 'degrees', angle: 19.75, ref: 'sunrise' },
+      mgaDayEnd: { type: 'degrees', angle: 19.75, ref: 'sunset' },
+      highCityOverrides: {
+        candlesRef: 'sunset2',
+        zmanim: {
+          tzeisRT: { type: 'fixed', minutes: 72, ref: 'sunsetVisible' }
+        }
+      },
+      zmanim: Object.assign(baseZmanim(), {
+        alos: { type: 'degrees', angle: 19.75, ref: 'sunrise' },
+        alos2: { type: 'degrees', angle: 16.02, ref: 'sunrise' },
+        misheyakir: { type: 'degrees', angle: 11.5, ref: 'sunrise' },
+        minchaGedola: {
+          type: 'later',
+          rules: [
+            { type: 'fixed', minutes: 30, ref: 'chatzos' },
+            { type: 'seasonal', minutes: 30, ref: 'chatzos', basis: 'gra' }
+          ]
+        },
+        sunset2: { type: 'sunset', elevation: 'visible' },
+        tzeis: { type: 'seasonal', minutes: 13.5, ref: 'sunset', basis: 'gra' },
+        tzeisShabbat: { type: 'degrees', angle: 8.5, ref: 'sunset' },
+        tzeisRT: { type: 'fixed', minutes: 72, ref: 'sunset' }
       })
     },
     {

@@ -7,7 +7,7 @@
 (function () {
   'use strict';
 
-  var STORAGE_KEY = 'zmanim-app-state-v1';
+  var STORAGE_KEY = ZmanimCommon.STORAGE_KEY;
 
   var loc = null;
   var method = null;
@@ -35,36 +35,18 @@
     else method = ZmanimMethods.getById(methodId) || ZmanimMethods.getById('itim-levina') || ZmanimMethods.METHODS[0];
   }
 
-  // ---------- תאריכים ----------
+  // ---------- תאריכים (הפונקציות המשותפות ב-common.js) ----------
 
-  function todayInTZ(tz) {
-    var s = new Intl.DateTimeFormat('en-CA', {
-      year: 'numeric', month: '2-digit', day: '2-digit', timeZone: tz
-    }).format(new Date());
-    var parts = s.split('-');
-    return { year: +parts[0], month: +parts[1], day: +parts[2] };
-  }
-
-  function shiftDate(d, days) {
-    var nd = new Date(Date.UTC(d.year, d.month - 1, d.day + days, 12));
-    return { year: nd.getUTCFullYear(), month: nd.getUTCMonth() + 1, day: nd.getUTCDate() };
-  }
-
-  function noonUTC(d) {
-    return new Date(Date.UTC(d.year, d.month - 1, d.day, 12));
-  }
-
-  function dateKey(d) { return d.year + '-' + d.month + '-' + d.day; }
+  var todayInTZ = ZmanimCommon.todayInTZ;
+  var shiftDate = ZmanimCommon.shiftDate;
+  var noonUTC = ZmanimCommon.noonUTC;
+  var dateKey = ZmanimCommon.dateKey;
 
   // ---------- חישוב ----------
 
-  function candlesTime(result, forLoc) {
-    // המנוע כבר מחשב את הנרות מהערכים הלא-מעוגלים ומעגל לחומרא
-    if (result.candles != null) return result.candles;
-    var base = (method.candlesRef && result[method.candlesRef] != null)
-      ? result[method.candlesRef] : result.sunset;
-    if (base == null) return null;
-    return base - (forLoc.candleMinutes || 18) * 60000;
+  /** המנוע (engine.js) מחשב את הנרות מהערכים הלא-מעוגלים ומעגל לחומרא */
+  function candlesTime(result) {
+    return result.candles != null ? result.candles : null;
   }
 
   /** כל זמני היום (לחישוב "הזמן הבא"), ממוינים לפי הסדר הקבוע */
@@ -79,7 +61,7 @@
       var time = null, name = ZmanimMethods.ZMAN_NAMES[key];
       if (key === 'candles') {
         if (!showCandles) return;
-        time = candlesTime(result, loc);
+        time = candlesTime(result);
         if (erevChag) name = 'הדלקת נרות (' + erevChag + ')';
       } else {
         if (!(key in (method.zmanim || {}))) return;
@@ -102,7 +84,7 @@
     var friResult = ZmanimEngine.computeDay(friday, loc, method);
     var satResult = ZmanimEngine.computeDay(shabbat, loc, method);
     return {
-      candles: candlesTime(friResult, loc),
+      candles: candlesTime(friResult),
       tzeis: satResult.tzeisShabbat != null ? satResult.tzeisShabbat : satResult.tzeis
     };
   }
@@ -111,7 +93,7 @@
 
   function el(id) { return document.getElementById(id); }
 
-  function pad(n) { return (n < 10 ? '0' : '') + n; }
+  var pad = ZmanimCommon.pad2;
 
   /** ספירה לאחור חיה: "בעוד 2:07:31" (או "בעוד 07:31" מתחת לשעה) */
   function formatCountdown(ms) {
@@ -238,10 +220,22 @@
     }
   }
 
+  // מניעת כיבוי המסך — חיוני כשהלוח מוצב כתצוגת קיר
+  function requestWakeLock() {
+    if (!('wakeLock' in navigator)) return;
+    navigator.wakeLock.request('screen').catch(function () { /* לא נתמך / נדחה */ });
+  }
+
   function init() {
     loadSettings();
     tick();
     setInterval(tick, 1000);
+
+    requestWakeLock();
+    document.addEventListener('visibilitychange', function () {
+      // הנעילה משתחררת כשהטאב מוסתר — מבקשים שוב בחזרה אליו
+      if (document.visibilityState === 'visible') requestWakeLock();
+    });
 
     // מסך מלא בלחיצה כפולה — נוח כשמציבים מסך על הקיר
     el('led-panel').addEventListener('dblclick', function () {

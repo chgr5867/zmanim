@@ -6,13 +6,37 @@
   <meta name="theme-color" content="#1a3a5c">
   <title>זמני היום בהלכה</title>
   <link rel="manifest" href="manifest.webmanifest">
-  <link rel="stylesheet" href="css/style.css?v=21">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="icon" href="icons/icon-192.png" type="image/png" sizes="192x192">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <link rel="stylesheet" href="css/style.css?v=22">
 </head>
 <body>
+  <!-- ספריית אייקוני SVG (מוסתרת) — שימוש דרך <use href="#i-..."> -->
+  <svg xmlns="http://www.w3.org/2000/svg" style="display:none" aria-hidden="true">
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></symbol>
+    <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s-6.3-5.4-6.3-10.2A6.3 6.3 0 1 1 18.3 10.8C18.3 15.6 12 21 12 21z"/><circle cx="12" cy="10.7" r="2.3"/></symbol>
+    <symbol id="i-book" viewBox="0 0 24 24"><path d="M12 5.6C10 4.1 7.5 3.9 4.5 4.3V18.4c3-.4 5.5-.2 7.5 1.3 2-1.5 4.5-1.7 7.5-1.3V4.3C16.5 3.9 14 4.1 12 5.6z"/><path d="M12 5.6v14.1"/></symbol>
+    <symbol id="i-sliders" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/><circle cx="9" cy="7" r="1.8" fill="currentColor" stroke="none"/><circle cx="15" cy="12" r="1.8" fill="currentColor" stroke="none"/><circle cx="7" cy="17" r="1.8" fill="currentColor" stroke="none"/></symbol>
+    <symbol id="i-sunrise" viewBox="0 0 24 24"><path d="M12 8V3M9.6 5.4 12 3l2.4 2.4M4.5 12.5 3.2 11.2M19.5 12.5l1.3-1.3M3 18h18M7.5 18a4.5 4.5 0 0 1 9 0"/></symbol>
+    <symbol id="i-sunset" viewBox="0 0 24 24"><path d="M12 3v5M9.6 5.6 12 8l2.4-2.4M4.5 12.5 3.2 11.2M19.5 12.5l1.3-1.3M3 18h18M7.5 18a4.5 4.5 0 0 1 9 0"/></symbol>
+    <symbol id="i-candle" viewBox="0 0 24 24"><path d="M12 2.8c1.2 1.5 2 2.6 2 3.8a2 2 0 0 1-4 0c0-1.2.8-2.3 2-3.8z"/><path d="M9.7 11h4.6v10H9.7z"/></symbol>
+    <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 3.5l1.8 4.9 4.9 1.8-4.9 1.8L12 16.9l-1.8-4.9-4.9-1.8 4.9-1.8zM18.7 15.5l.8 2.2 2.2.8-2.2.8-.8 2.2-.8-2.2-2.2-.8 2.2-.8z"/></symbol>
+    <symbol id="i-share" viewBox="0 0 24 24"><circle cx="18" cy="5.5" r="2.4"/><circle cx="6" cy="12" r="2.4"/><circle cx="18" cy="18.5" r="2.4"/><path d="M8.2 10.8l7.6-4.1M8.2 13.2l7.6 4.1"/></symbol>
+    <symbol id="i-print" viewBox="0 0 24 24"><path d="M7 8V3.5h10V8M17 17.5h3.5v-7a2 2 0 0 0-2-2h-13a2 2 0 0 0-2 2v7H7"/><path d="M7 14.5h10v6H7z"/></symbol>
+    <symbol id="i-theme" viewBox="0 0 24 24"><path d="M20 13.2A8.2 8.2 0 1 1 10.8 4 6.6 6.6 0 0 0 20 13.2z"/></symbol>
+    <symbol id="i-calendar" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15.5" rx="2"/><path d="M3.5 9.5h17M8 3v4M16 3v4"/></symbol>
+  </svg>
+
   <header class="app-header">
     <div class="header-inner">
       <a id="back-link" class="back-link" href="/" hidden>→ היום יום</a>
-      <h1>🕰️ זמני היום</h1>
+      <div class="header-actions">
+        <button id="btn-theme" class="icon-btn header-icon" title="מצב תצוגה: אוטומטי" aria-label="החלפת מצב תצוגה"><svg class="ico"><use href="#i-theme"/></svg></button>
+        <button id="btn-share" class="icon-btn header-icon" title="שיתוף זמני היום" aria-label="שיתוף זמני היום"><svg class="ico"><use href="#i-share"/></svg></button>
+        <button id="btn-print" class="icon-btn header-icon" title="הדפסה" aria-label="הדפסה"><svg class="ico"><use href="#i-print"/></svg></button>
+      </div>
+      <h1><svg class="ico"><use href="#i-clock"/></svg> זמני היום</h1>
       <div class="date-line">
         <button id="btn-prev-day" class="icon-btn" title="יום קודם" aria-label="יום קודם">▶</button>
         <div class="date-display">
@@ -23,7 +47,14 @@
       </div>
       <div class="date-tools">
         <input type="date" id="date-picker" aria-label="בחירת תאריך">
+        <button id="btn-heb-date" class="small-btn" aria-expanded="false" aria-controls="hebdate-pop">תאריך עברי</button>
         <button id="btn-today" class="small-btn">היום</button>
+      </div>
+      <div id="hebdate-pop" class="hebdate-pop" hidden>
+        <select id="heb-day" aria-label="יום עברי"></select>
+        <select id="heb-month" aria-label="חודש עברי"></select>
+        <select id="heb-year" aria-label="שנה עברית"></select>
+        <button id="btn-heb-go" class="small-btn primary">מעבר</button>
       </div>
     </div>
     <a id="mini-dash" class="mini-dash" href="dashboard.html" title="לתצוגת הלוח המלאה">
@@ -37,58 +68,67 @@
   </header>
 
   <main class="container">
-    <!-- מיקום -->
-    <section class="card" id="location-card">
-      <div class="card-title-row">
-        <h2>📍 מיקום</h2>
-        <button id="btn-geolocate" class="small-btn primary">איתור אוטומטי</button>
-      </div>
-      <div id="location-status" class="muted small"></div>
-      <div class="field-row">
-        <label for="city-select">עיר:</label>
-        <select id="city-select">
-          <option value="">— בחירת עיר —</option>
-        </select>
-      </div>
-      <div class="field-row">
-        <input type="text" id="address-input" class="grow" placeholder="או חיפוש כתובת מדויקת: רחוב, מספר, עיר…" autocomplete="street-address">
-        <button id="btn-address-search" class="small-btn">חיפוש</button>
-      </div>
-      <div id="address-results" class="address-results"></div>
-      <details id="manual-location">
-        <summary>הזנת מיקום ידנית</summary>
-        <div class="field-grid">
-          <label>קו רוחב <input type="number" id="input-lat" step="0.0001" min="-89.9" max="89.9"></label>
-          <label>קו אורך <input type="number" id="input-lon" step="0.0001" min="-180" max="180"></label>
-          <label>גובה (מ׳) <input type="number" id="input-elev" step="1" min="-430" max="9000"></label>
-          <label>אזור זמן
-            <select id="tz-select"></select>
-          </label>
-        </div>
-        <button id="btn-apply-manual" class="small-btn">עדכון מיקום</button>
-      </details>
-    </section>
+    <!-- שורת סיכום הגדרות (כשהכרטיסים מכווצים) -->
+    <button class="settings-summary" id="settings-summary" aria-expanded="false" aria-controls="settings-cards" hidden>
+      <svg class="ico"><use href="#i-pin"/></svg>
+      <span id="summary-text">—</span>
+      <span class="chev" aria-hidden="true">▾</span>
+    </button>
 
-    <!-- שיטה -->
-    <section class="card" id="method-card">
-      <div class="card-title-row">
-        <h2>📖 שיטת החישוב</h2>
-        <button id="btn-edit-custom" class="small-btn">שיטה אישית ⚙️</button>
-      </div>
-      <div class="field-row">
-        <select id="method-select" aria-label="בחירת שיטה"></select>
-      </div>
-      <p id="method-description" class="muted small"></p>
-    </section>
+    <div id="settings-cards">
+      <!-- מיקום -->
+      <section class="card" id="location-card">
+        <div class="card-title-row">
+          <h2><svg class="ico"><use href="#i-pin"/></svg> מיקום</h2>
+          <button id="btn-geolocate" class="small-btn primary">איתור אוטומטי</button>
+        </div>
+        <div id="location-status" class="muted small"></div>
+        <div class="field-row">
+          <label for="city-select">עיר:</label>
+          <select id="city-select">
+            <option value="">— בחירת עיר —</option>
+          </select>
+        </div>
+        <div class="field-row">
+          <input type="text" id="address-input" class="grow" placeholder="או חיפוש כתובת מדויקת: רחוב, מספר, עיר…" autocomplete="street-address">
+          <button id="btn-address-search" class="small-btn">חיפוש</button>
+        </div>
+        <div id="address-results" class="address-results"></div>
+        <details id="manual-location">
+          <summary>הזנת מיקום ידנית</summary>
+          <div class="field-grid">
+            <label>קו רוחב <input type="number" id="input-lat" step="0.0001" min="-89.9" max="89.9"></label>
+            <label>קו אורך <input type="number" id="input-lon" step="0.0001" min="-180" max="180"></label>
+            <label>גובה (מ׳) <input type="number" id="input-elev" step="1" min="-430" max="9000"></label>
+            <label>אזור זמן
+              <select id="tz-select"></select>
+            </label>
+          </div>
+          <button id="btn-apply-manual" class="small-btn">עדכון מיקום</button>
+        </details>
+      </section>
+
+      <!-- שיטה -->
+      <section class="card" id="method-card">
+        <div class="card-title-row">
+          <h2><svg class="ico"><use href="#i-book"/></svg> שיטת החישוב</h2>
+          <button id="btn-edit-custom" class="small-btn">שיטה אישית <svg class="ico"><use href="#i-sliders"/></svg></button>
+        </div>
+        <div class="field-row">
+          <select id="method-select" aria-label="בחירת שיטה"></select>
+        </div>
+        <p id="method-description" class="muted small"></p>
+      </section>
+    </div>
 
     <!-- זמנים -->
     <section class="card" id="zmanim-card">
       <h2 class="sr-only">זמני היום</h2>
       <div class="view-tabs" role="tablist" aria-label="תצוגה">
-        <button class="tab active" data-view="daily" role="tab">יומי</button>
-        <button class="tab" data-view="weekly" role="tab">שבועי</button>
-        <button class="tab" data-view="monthly" role="tab">חודשי</button>
-        <button class="tab" data-view="compare" role="tab">השוואת שיטות</button>
+        <button class="tab active" data-view="daily" role="tab" aria-selected="true">יומי</button>
+        <button class="tab" data-view="weekly" role="tab" aria-selected="false" tabindex="-1">שבועי</button>
+        <button class="tab" data-view="monthly" role="tab" aria-selected="false" tabindex="-1">חודשי</button>
+        <button class="tab" data-view="compare" role="tab" aria-selected="false" tabindex="-1">השוואת שיטות</button>
       </div>
       <div id="view-daily">
         <table class="zmanim-table" id="zmanim-table">
@@ -104,7 +144,7 @@
         <div class="table-scroll">
           <table class="month-table" id="monthly-table"></table>
         </div>
-        <p class="muted small">🕯️ הדלקת נרות בערבי שבתות וחגים · ✨ יציאת השבת והחג · הזריחה והשקיעה לפי השיטה הנבחרת</p>
+        <p class="muted small"><svg class="ico ico-accent"><use href="#i-candle"/></svg> הדלקת נרות בערבי שבתות וחגים · <svg class="ico ico-primary"><use href="#i-star"/></svg> יציאת השבת והחג · הזריחה והשקיעה לפי השיטה הנבחרת</p>
       </div>
       <div id="view-weekly" hidden>
         <div class="month-nav">
@@ -121,6 +161,7 @@
         <div class="table-scroll">
           <table class="matrix-table" id="compare-table"></table>
         </div>
+        <p class="muted small compare-hint">לחיצה על תא מציגה את דרך החישוב.</p>
       </div>
       <p class="muted small" id="elevation-note"></p>
     </section>
@@ -147,12 +188,22 @@
     </div>
   </div>
 
-  <script src="js/solar.js?v=21"></script>
-  <script src="js/engine.js?v=21"></script>
-  <script src="js/methods.js?v=21"></script>
-  <script src="js/cities.js?v=21"></script>
-  <script src="js/hebrew.js?v=21"></script>
-  <script src="js/parasha.js?v=21"></script>
-  <script src="js/app.js?v=21"></script>
+  <!-- הודעת עדכון גרסה -->
+  <div id="update-bar" class="update-bar" hidden>
+    <span>גרסה חדשה של האפליקציה זמינה</span>
+    <button id="btn-update-reload" class="small-btn primary">רענון</button>
+  </div>
+
+  <!-- הודעה קופצת קצרה -->
+  <div id="toast" class="toast" role="status" hidden></div>
+
+  <script src="js/solar.js?v=22"></script>
+  <script src="js/engine.js?v=22"></script>
+  <script src="js/methods.js?v=22"></script>
+  <script src="js/cities.js?v=22"></script>
+  <script src="js/hebrew.js?v=22"></script>
+  <script src="js/parasha.js?v=22"></script>
+  <script src="js/common.js?v=22"></script>
+  <script src="js/app.js?v=22"></script>
 </body>
 </html>

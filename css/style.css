@@ -1,5 +1,23 @@
 /* style.css — עיצוב אפליקציית זמני היום. Mobile-first, RTL, תמיכה במצב כהה. */
 
+/* פונט Heebo מוטמע (וריאבילי, 100–900) — עברית אחידה בכל המכשירים, גם אופליין */
+@font-face {
+  font-family: 'Heebo';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url('../fonts/heebo-hebrew.woff2') format('woff2');
+  unicode-range: U+0307-0308, U+0590-05FF, U+200C-2010, U+20AA, U+25CC, U+FB1D-FB4F;
+}
+@font-face {
+  font-family: 'Heebo';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url('../fonts/heebo-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
 :root {
   --bg: #f2f5f9;
   --card-bg: #ffffff;
@@ -15,8 +33,10 @@
   --radius: 14px;
 }
 
+/* פלטה כהה — חלה אוטומטית לפי המערכת (אלא אם נבחר "בהיר" ידנית),
+   או בכפייה כשנבחר "כהה" במתג שבכותרת (data-theme על שורש המסמך) */
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme="light"]) {
     --bg: #0f1722;
     --card-bg: #1a2634;
     --text: #e6edf5;
@@ -30,6 +50,19 @@
     --shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
   }
 }
+:root[data-theme="dark"] {
+  --bg: #0f1722;
+  --card-bg: #1a2634;
+  --text: #e6edf5;
+  --muted: #8ba0b8;
+  --primary: #7fb2e5;
+  --primary-light: #a8ccef;
+  --accent: #e3c157;
+  --border: #2c3d52;
+  --highlight: #2a3040;
+  --highlight-border: #907c2e;
+  --shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+}
 
 * { box-sizing: border-box; }
 
@@ -37,7 +70,7 @@ html { -webkit-text-size-adjust: 100%; }
 
 body {
   margin: 0;
-  font-family: "Segoe UI", "Heebo", "Arial Hebrew", Arial, sans-serif;
+  font-family: "Heebo", "Segoe UI", "Arial Hebrew", Arial, sans-serif;
   background: var(--bg);
   color: var(--text);
   line-height: 1.5;
@@ -59,8 +92,9 @@ body {
 }
 
 @media (prefers-color-scheme: dark) {
-  .app-header { background: linear-gradient(135deg, #16283c 0%, #0d1826 100%); }
+  :root:not([data-theme="light"]) .app-header { background: linear-gradient(135deg, #16283c 0%, #0d1826 100%); }
 }
+:root[data-theme="dark"] .app-header { background: linear-gradient(135deg, #16283c 0%, #0d1826 100%); }
 
 .header-inner {
   max-width: 640px;
@@ -284,8 +318,9 @@ details summary {
   color: #fff;
 }
 @media (prefers-color-scheme: dark) {
-  .small-btn.primary { background: #2d5f94; border-color: #2d5f94; }
+  :root:not([data-theme="light"]) .small-btn.primary { background: #2d5f94; border-color: #2d5f94; }
 }
+:root[data-theme="dark"] .small-btn.primary { background: #2d5f94; border-color: #2d5f94; }
 .small-btn:active { transform: scale(0.97); }
 
 .icon-btn {
@@ -608,4 +643,175 @@ tr.zman-passed .zman-time { opacity: 0.55; font-weight: 500; }
   }
   .custom-row label { flex: 0 0 40%; }
   .custom-row select { flex: 1; width: auto; }
+}
+
+/* ===== אייקוני SVG ===== */
+.ico {
+  width: 1em;
+  height: 1em;
+  vertical-align: -0.12em;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  flex-shrink: 0;
+}
+.ico-accent { color: var(--accent); }
+.ico-primary { color: var(--primary); }
+
+svg.m-ico {
+  width: 0.72rem;
+  height: 0.72rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  flex-shrink: 0;
+}
+.m-zman svg.m-ico { color: var(--muted); }
+
+/* ===== כפתורי הפעולה בכותרת (מצב תצוגה, שיתוף, הדפסה) ===== */
+.header-actions {
+  position: absolute;
+  inset-inline-end: 8px;
+  top: 8px;
+  display: flex;
+  gap: 2px;
+}
+.header-icon {
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 1.05rem;
+  padding: 6px 8px;
+}
+.header-icon:hover { color: #fff; }
+/* כשמוצג קישור החזרה — הכפתורים זזים הצידה כדי לא לחפוף אותו */
+.back-link:not([hidden]) ~ .header-actions { inset-inline-end: 108px; }
+
+/* ===== שורת סיכום ההגדרות (מיקום + שיטה, מכווץ) ===== */
+.settings-summary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  font-family: inherit;
+  font-size: 0.92rem;
+  color: var(--text);
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 10px 14px;
+  margin-bottom: 14px;
+  cursor: pointer;
+  text-align: right;
+}
+.settings-summary .ico { color: var(--primary); font-size: 1.05em; }
+.settings-summary #summary-text {
+  flex: 1;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.settings-summary .chev { color: var(--muted); }
+.settings-summary[hidden] { display: none; }
+
+/* ===== קופץ בחירת תאריך עברי ===== */
+.hebdate-pop {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+.hebdate-pop[hidden] { display: none; }
+.hebdate-pop select {
+  font-size: 0.85rem;
+  padding: 4px 6px;
+  border: none;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+}
+.hebdate-pop select option { color: #1c2733; }
+
+/* ===== פס עדכון גרסה ===== */
+.update-bar {
+  position: fixed;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--primary);
+  color: #fff;
+  font-size: 0.88rem;
+  padding: 10px 16px;
+  border-radius: 999px;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.35);
+  z-index: 60;
+  white-space: nowrap;
+}
+.update-bar[hidden] { display: none; }
+.update-bar .small-btn.primary {
+  background: #fff;
+  color: var(--primary);
+  border-color: #fff;
+}
+
+/* ===== הודעה קופצת (Toast) ===== */
+.toast {
+  position: fixed;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  max-width: min(92vw, 480px);
+  background: var(--text);
+  color: var(--bg);
+  font-size: 0.85rem;
+  padding: 10px 16px;
+  border-radius: 11px;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.35);
+  z-index: 70;
+  text-align: center;
+}
+.toast[hidden] { display: none; }
+
+.compare-hint { text-align: center; }
+@media (hover: hover) and (pointer: fine) {
+  .compare-hint { display: none; } /* בעכבר יש tooltip — ההנחיה מיותרת */
+}
+
+/* ===== הדפסה — לוח נקי בשחור-לבן, בלי כלי ממשק ===== */
+@media print {
+  body { background: #fff; color: #000; }
+  .app-header {
+    background: none;
+    color: #000;
+    box-shadow: none;
+    padding: 0;
+  }
+  .mini-dash, .date-tools, .hebdate-pop, .header-actions, .back-link,
+  .date-line .icon-btn, .view-tabs, .settings-summary, #settings-cards,
+  .month-nav .small-btn, .update-bar, .toast, .compare-hint { display: none !important; }
+  .card {
+    box-shadow: none;
+    border: none;
+    padding: 0;
+  }
+  #zmanim-card.wide {
+    width: 100%;
+    margin-inline-start: 0;
+  }
+  .table-scroll { overflow: visible; margin: 0; }
+  .matrix-table .row-head { box-shadow: none; position: static; }
+  .zmanim-table td, .matrix-table th, .matrix-table td, .mcell,
+  .month-table thead th { border-color: #999; }
+  tr.zman-next { background: none; outline: none; }
+  tr.zman-next .zman-time::after { content: ""; }
+  .mcell-today { outline: 1px solid #666; background: none; }
+  .matrix-table .col-today, .mcell-shabbat { background: #f0f0f0; }
 }
