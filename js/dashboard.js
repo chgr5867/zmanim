@@ -111,12 +111,12 @@
 
   function pad(n) { return (n < 10 ? '0' : '') + n; }
 
+  /** ספירה לאחור חיה: "בעוד 2:07:31" (או "בעוד 07:31" מתחת לשעה) */
   function formatCountdown(ms) {
     var s = Math.max(0, Math.floor(ms / 1000));
-    var h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60);
-    if (h > 0) return 'בעוד ' + h + ':' + pad(m) + ' שע׳';
-    if (m > 0) return 'בעוד ' + m + ' דק׳';
-    return 'בעוד פחות מדקה';
+    var h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), sec = s % 60;
+    var digits = h > 0 ? h + ':' + pad(m) + ':' + pad(sec) : pad(m) + ':' + pad(sec);
+    return 'בעוד ⁦' + digits + '⁩';
   }
 
   // העמודות הקבועות בשורה התחתונה (מימין לשמאל)
@@ -149,10 +149,14 @@
     el('dash-hebrew-date').textContent = HebrewUtils.hebrewDate(noon, 'UTC');
     el('dash-greg-date').textContent = pad(today.day) + '/' + pad(today.month) + '/' + today.year;
     el('dash-weekday').textContent = HebrewUtils.weekdayName(noon, 'UTC').replace('יום ', '');
+    var par = ParashaUtils.weekly(today);
+    el('dash-parasha').textContent = par ? par.name : '—';
     el('dash-location').textContent = loc.name || '';
     el('dash-method').textContent = 'לפי שיטת ' + method.name.split(' — ')[0] +
       (loc.name ? ' · ' + loc.name : '');
   }
+
+  var currentNext = null; // הזמן הקרוב הבא — לספירה לאחור החיה
 
   function renderZmanim(today, now) {
     var data = computeForToday(today);
@@ -169,6 +173,7 @@
         next = { key: tomorrowRows[0].key, name: tomorrowRows[0].name + ' (מחר)', time: tomorrowRows[0].time };
       }
     }
+    currentNext = next;
     if (next) {
       el('dash-next-name').textContent = next.name;
       el('dash-next-time').textContent = HebrewUtils.formatTime(next.time, loc.tz);
@@ -222,9 +227,12 @@
       renderStatic(today);
       renderZmanim(today, now);
       lastMinute = minute;
-    } else if (minute !== lastMinute) {
+    } else if (minute !== lastMinute || (currentNext && currentNext.time <= now)) {
+      // רענון בתחילת כל דקה, ומיד כשהזמן הבא מגיע
       lastMinute = minute;
       renderZmanim(today, now);
+    } else if (currentNext) {
+      el('dash-next-count').textContent = formatCountdown(currentNext.time - now);
     }
   }
 
