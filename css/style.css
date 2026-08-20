@@ -139,6 +139,17 @@ body {
   text-shadow: 0 0 4px rgba(207, 230, 255, 0.5);
 }
 
+.mini-parasha {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #eaf4ff;
+  text-shadow: 0 0 4px rgba(207, 230, 255, 0.5);
+  white-space: nowrap;
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 /* במסכים רחבים הלוח נצמד לקצה הימני של הכותרת (מחוץ לעמודת התוכן),
    כדי שלא יסתיר את כפתורי הדפדוף שליד התאריך */
 @media (min-width: 760px) {

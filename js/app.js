@@ -473,6 +473,15 @@
     }
     el('mini-next-name').textContent = next ? next.name : '—';
     el('mini-next-time').textContent = next ? HebrewUtils.formatTime(next.time, state.loc.tz) : '';
+
+    // פרשת השבוע (בשבתות חג — שם החג, בלי "פרשת")
+    var par = ParashaUtils.weekly(today);
+    if (par) {
+      var isParasha = par.name.indexOf('־') >= 0 || ParashaUtils.PARSHIOT.indexOf(par.name) >= 0;
+      el('mini-parasha').textContent = (isParasha ? 'פרשת ' : '') + par.name;
+    } else {
+      el('mini-parasha').textContent = '';
+    }
   }
 
   // ---------- מיקום ----------
