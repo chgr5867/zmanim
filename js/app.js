@@ -10,8 +10,8 @@
   var state = {
     date: null,          // {year, month, day} — תאריך אזרחי מוצג
     loc: null,           // {name, lat, lon, elevation, tz, candleMinutes}
-    methodId: 'chazon-shamayim',
-    lastPresetId: 'chazon-shamayim',
+    methodId: 'itim-levina',
+    lastPresetId: 'itim-levina',
     view: 'daily',       // daily | weekly | compare
     customMethod: null,
     customSelections: {}
@@ -429,6 +429,43 @@
     renderMethodInfo();
     renderLocationStatus();
     renderActiveView();
+    miniDashMinute = -1;
+    updateMiniDash();
+  }
+
+  // ---------- הלוח המוקטן בכותרת ----------
+
+  var miniDashMinute = -1;
+
+  function updateMiniDash() {
+    var clockEl = el('mini-clock');
+    if (!clockEl || !state.loc) return;
+    var now = Date.now();
+    clockEl.textContent = HebrewUtils.formatTime(now, state.loc.tz, true);
+
+    // "הזמן הבא" מתעדכן רק בתחילת דקה (או אחרי שינוי מיקום/שיטה)
+    var minute = Math.floor(now / 60000);
+    if (minute === miniDashMinute) return;
+    miniDashMinute = minute;
+
+    var today = todayInTZ(state.loc.tz);
+    var rows = computeRows(today, state.loc, currentMethod(), 'daily').rows;
+    var next = null;
+    for (var i = 0; i < rows.length; i++) {
+      if (rows[i].time != null && rows[i].time > now) { next = rows[i]; break; }
+    }
+    if (!next) {
+      // אחרי הזמן האחרון של היום — הזמן הראשון של מחר
+      var tomorrow = computeRows(shiftDate(today, 1), state.loc, currentMethod(), 'daily').rows;
+      for (var j = 0; j < tomorrow.length; j++) {
+        if (tomorrow[j].time != null) {
+          next = { name: tomorrow[j].name + ' (מחר)', time: tomorrow[j].time };
+          break;
+        }
+      }
+    }
+    el('mini-next-name').textContent = next ? next.name : '—';
+    el('mini-next-time').textContent = next ? HebrewUtils.formatTime(next.time, state.loc.tz) : '';
   }
 
   // ---------- מיקום ----------
@@ -818,6 +855,9 @@
     setInterval(function () {
       if (state.view === 'daily' && isSameDate(state.date, todayInTZ(state.loc.tz))) renderDaily();
     }, 30000);
+
+    // השעון הרץ בלוח המוקטן שבכותרת
+    setInterval(updateMiniDash, 1000);
 
     // רישום Service Worker לעבודה במצב לא מקוון (PWA)
     if ('serviceWorker' in navigator && location.protocol !== 'file:') {

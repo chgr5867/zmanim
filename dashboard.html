@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#000000">
+  <title>לוח זמנים — תצוגת שעון</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="stylesheet" href="css/dashboard.css?v=9">
+</head>
+<body class="led-body">
+  <a class="led-back" href="index.html">→ לאפליקציה</a>
+
+  <div class="led-panel" id="led-panel" title="לחיצה כפולה: מסך מלא">
+    <!-- שורה עליונה: תאריכים ומיקום -->
+    <div class="led-row led-top">
+      <div class="led-red" id="dash-hebrew-date">—</div>
+      <div class="led-white led-location" id="dash-location">—</div>
+      <div class="led-red led-ltr" id="dash-greg-date">—</div>
+    </div>
+
+    <!-- מרכז: יום | שעון | הזמן הבא -->
+    <div class="led-row led-middle">
+      <div class="led-side">
+        <div class="led-red led-label">יום</div>
+        <div class="led-white led-dayname" id="dash-weekday">—</div>
+      </div>
+      <div class="led-clock" id="dash-clock">--:--:--</div>
+      <div class="led-side">
+        <div class="led-red led-label" id="dash-next-name">הזמן הבא</div>
+        <div class="led-white led-next-time" id="dash-next-time">—</div>
+        <div class="led-amber led-countdown" id="dash-next-count"></div>
+      </div>
+    </div>
+
+    <!-- שורה תחתונה: זמני היום -->
+    <div class="led-row led-bottom" id="dash-zmanim"></div>
+
+    <div class="led-footer">
+      <span id="dash-method" class="led-dim">—</span>
+    </div>
+  </div>
+
+  <script src="js/solar.js?v=9"></script>
+  <script src="js/engine.js?v=9"></script>
+  <script src="js/methods.js?v=9"></script>
+  <script src="js/cities.js?v=9"></script>
+  <script src="js/hebrew.js?v=9"></script>
+  <script src="js/dashboard.js?v=9"></script>
+</body>
+</html>

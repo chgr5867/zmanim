@@ -1,0 +1,193 @@
+/* dashboard.css — תצוגת "לוח זמנים" בסגנון שעון LED של בית כנסת */
+
+:root {
+  --led-red: #ff3b30;
+  --led-white: #eaf4ff;
+  --led-blue: #cfe6ff;
+  --led-amber: #ffc14d;
+  --led-dim: #5a6b7a;
+  --panel-bg: #050608;
+  --frame: #23272d;
+}
+
+* { box-sizing: border-box; }
+
+.led-body {
+  margin: 0;
+  min-height: 100vh;
+  min-height: 100dvh;
+  background: #0b0d10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: "Segoe UI", "Heebo", "Arial Hebrew", Arial, sans-serif;
+  padding: 12px;
+}
+
+.led-back {
+  position: fixed;
+  top: 10px;
+  inset-inline-start: 12px;
+  color: #8ba0b8;
+  text-decoration: none;
+  font-size: 0.85rem;
+  background: rgba(255, 255, 255, 0.07);
+  padding: 5px 12px;
+  border-radius: 999px;
+  z-index: 5;
+}
+.led-back:hover { background: rgba(255, 255, 255, 0.16); color: #fff; }
+
+/* ===== המסגרת (כמו פרופיל אלומיניום של שלט) ===== */
+.led-panel {
+  width: 100%;
+  max-width: 900px;
+  background: var(--panel-bg);
+  border: 10px solid var(--frame);
+  border-radius: 18px;
+  box-shadow:
+    inset 0 0 40px rgba(0, 0, 0, 0.9),
+    0 12px 40px rgba(0, 0, 0, 0.65);
+  padding: 18px 22px 10px;
+  user-select: none;
+  cursor: default;
+}
+
+.led-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+/* ===== צבעי LED ===== */
+.led-red {
+  color: var(--led-red);
+  text-shadow: 0 0 6px rgba(255, 59, 48, 0.6), 0 0 18px rgba(255, 59, 48, 0.25);
+}
+.led-white {
+  color: var(--led-white);
+  text-shadow: 0 0 6px rgba(207, 230, 255, 0.5), 0 0 16px rgba(160, 200, 255, 0.2);
+}
+.led-amber {
+  color: var(--led-amber);
+  text-shadow: 0 0 6px rgba(255, 193, 77, 0.55);
+}
+.led-dim { color: var(--led-dim); }
+.led-ltr { direction: ltr; }
+
+/* ===== שורה עליונה ===== */
+.led-top {
+  font-size: clamp(0.85rem, 2.6vw, 1.15rem);
+  font-weight: 700;
+  border-bottom: 1px solid #171b20;
+  padding-bottom: 8px;
+}
+.led-location {
+  font-size: clamp(0.75rem, 2.2vw, 1rem);
+  font-weight: 400;
+  opacity: 0.9;
+}
+
+/* ===== מרכז ===== */
+.led-middle {
+  padding: clamp(10px, 3vw, 22px) 0;
+}
+
+.led-clock {
+  flex: 1;
+  text-align: center;
+  direction: ltr;
+  font-family: Consolas, "Courier New", monospace;
+  font-weight: 700;
+  font-size: clamp(2.6rem, 11vw, 6rem);
+  letter-spacing: 0.04em;
+  color: var(--led-blue);
+  font-variant-numeric: tabular-nums;
+  text-shadow:
+    0 0 8px rgba(160, 205, 255, 0.75),
+    0 0 30px rgba(110, 170, 255, 0.35),
+    0 0 60px rgba(90, 150, 255, 0.18);
+}
+
+.led-side {
+  min-width: 110px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.led-label { font-size: clamp(0.75rem, 2vw, 0.95rem); font-weight: 700; }
+.led-dayname { font-size: clamp(1.3rem, 4.5vw, 2.2rem); font-weight: 800; }
+.led-next-time {
+  font-size: clamp(1.3rem, 4.5vw, 2.2rem);
+  font-weight: 800;
+  direction: ltr;
+  font-variant-numeric: tabular-nums;
+}
+.led-countdown { font-size: clamp(0.7rem, 2vw, 0.9rem); direction: rtl; }
+
+/* ===== שורה תחתונה: עמודות זמנים ===== */
+.led-bottom {
+  border-top: 1px solid #171b20;
+  padding-top: 10px;
+  align-items: stretch;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.led-cell {
+  flex: 1;
+  min-width: 72px;
+  text-align: center;
+  padding: 4px 2px 6px;
+  border-radius: 8px;
+}
+.led-cell .cell-name {
+  display: block;
+  font-size: clamp(0.68rem, 1.9vw, 0.88rem);
+  font-weight: 700;
+  color: var(--led-red);
+  text-shadow: 0 0 6px rgba(255, 59, 48, 0.55);
+  white-space: nowrap;
+}
+.led-cell .cell-time {
+  display: block;
+  margin-top: 2px;
+  font-size: clamp(1.05rem, 3.4vw, 1.7rem);
+  font-weight: 800;
+  color: var(--led-white);
+  direction: ltr;
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 0 6px rgba(207, 230, 255, 0.5);
+}
+
+.led-cell.cell-passed .cell-time { opacity: 0.45; }
+.led-cell.cell-next {
+  outline: 1px solid rgba(255, 193, 77, 0.7);
+  background: rgba(255, 193, 77, 0.06);
+}
+.led-cell.cell-next .cell-time {
+  color: var(--led-amber);
+  text-shadow: 0 0 8px rgba(255, 193, 77, 0.65);
+  animation: led-blink 2s ease-in-out infinite;
+}
+
+@keyframes led-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.55; }
+}
+
+/* ===== תחתית ===== */
+.led-footer {
+  text-align: center;
+  font-size: 0.68rem;
+  padding-top: 8px;
+}
+
+/* מסכים צרים: השעון מעל, הצדדים בשורה */
+@media (max-width: 560px) {
+  .led-middle { flex-direction: column; gap: 6px; }
+  .led-side { flex-direction: column; }
+  .led-panel { border-width: 6px; padding: 12px 12px 8px; }
+}
