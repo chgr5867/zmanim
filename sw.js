@@ -2,21 +2,21 @@
  * sw.js — Service Worker: שמירת קבצי האפליקציה במטמון לעבודה במצב לא מקוון.
  * החישובים כולם מקומיים, כך שהאפליקציה עובדת מלאה גם ללא אינטרנט.
  */
-var CACHE_NAME = 'zmanim-cache-v18';
+var CACHE_NAME = 'zmanim-cache-v19';
 var ASSETS = [
   './',
   './index.html',
   './dashboard.html',
-  './css/style.css?v=18',
-  './css/dashboard.css?v=18',
-  './js/solar.js?v=18',
-  './js/engine.js?v=18',
-  './js/methods.js?v=18',
-  './js/cities.js?v=18',
-  './js/hebrew.js?v=18',
-  './js/parasha.js?v=18',
-  './js/app.js?v=18',
-  './js/dashboard.js?v=18',
+  './css/style.css?v=19',
+  './css/dashboard.css?v=19',
+  './js/solar.js?v=19',
+  './js/engine.js?v=19',
+  './js/methods.js?v=19',
+  './js/cities.js?v=19',
+  './js/hebrew.js?v=19',
+  './js/parasha.js?v=19',
+  './js/app.js?v=19',
+  './js/dashboard.js?v=19',
   './manifest.webmanifest',
   './icon.svg'
 ];

@@ -589,14 +589,14 @@
     else if (state.view === 'monthly') renderMonthly();
     else renderCompare();
 
-    // הערת גובה
+    // הערת גובה — מוצגת רק כשהשיטה מחשבת לפי גובה המקום, כדי לציין
+    // איזה גובה בשימוש. בשיטות המישוריות אין הערה: תיאור כל שורה
+    // (וכן שורת "שקיעה מהגובה" בלוחות שמציגים אותה) כבר אומר זאת.
     var method = currentMethod();
     var loc = state.loc;
     var note = '';
     if ((method.elevation || 'visible') === 'visible' && (loc.elevation || 0) > 0) {
       note = 'הזריחה והשקיעה מחושבות עם התאמת גובה של ' + Math.round(loc.elevation) + ' מ׳. זמני המעלות אינם מושפעים מגובה.';
-    } else if ((method.elevation || 'visible') === 'sea') {
-      note = 'הזריחה והשקיעה מחושבות מישוריות (גובה פני הים), כמקובל בלוחות ארץ ישראל.';
     }
     el('elevation-note').textContent = note;
   }
