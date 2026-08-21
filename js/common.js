@@ -56,11 +56,19 @@
   }
 
   /**
-   * השקיעה המוצגת כברירת מחדל: באזורי הגובה (ירושלים, בית שמש, ביתר עילית,
-   * מודיעין עילית וכתובות שבהן) — השקיעה מהגובה, כשהשיטה מחשבת אותה.
+   * אזור גבוה לצורך תצוגת השקיעה: ערי הגובה שבמנהג, שם שמזוהה כאחת מהן,
+   * או כל מיקום בגובה 500 מ׳ ומעלה (כתובות בירושלים וסביבתה, צפת וכד׳).
+   */
+  function isHighArea(loc) {
+    return !!(loc && (loc.highCustom || isHighCustomPlace(loc.name) || (loc.elevation || 0) >= 500));
+  }
+
+  /**
+   * השקיעה המוצגת כברירת מחדל: באזורים הגבוהים — השקיעה מהגובה,
+   * כשהשיטה מחשבת אותה.
    */
   function displaySunset(result, loc) {
-    if (loc && loc.highCustom && result && result.sunset2 != null) return result.sunset2;
+    if (isHighArea(loc) && result && result.sunset2 != null) return result.sunset2;
     return result ? result.sunset : null;
   }
 
@@ -75,6 +83,7 @@
     pad2: pad2,
     isHighCustomPlace: isHighCustomPlace,
     ensureHighCustom: ensureHighCustom,
+    isHighArea: isHighArea,
     displaySunset: displaySunset
   };
 })(typeof window !== 'undefined' ? window : globalThis);

@@ -73,7 +73,7 @@
         if (key === 'tzeisShabbat' && dow !== 6) return;
         // באזורי הגובה השקיעה המוצגת היא מהגובה — בלי כפל שורות
         if (key === 'sunset') time = ZmanimCommon.displaySunset(result, loc);
-        else if (key === 'sunset2' && loc.highCustom) return;
+        else if (key === 'sunset2' && ZmanimCommon.isHighArea(loc)) return;
         else time = result[key];
       }
       if (time != null) rows.push({ key: key, name: name, time: time });
