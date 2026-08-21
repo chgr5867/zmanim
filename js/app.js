@@ -41,7 +41,7 @@
       var raw = localStorage.getItem(STORAGE_KEY);
       if (!raw) return;
       var saved = JSON.parse(raw);
-      if (saved.loc) state.loc = saved.loc;
+      if (saved.loc) state.loc = ZmanimCommon.ensureHighCustom(saved.loc);
       if (saved.methodId) state.methodId = saved.methodId;
       if (saved.lastPresetId) state.lastPresetId = saved.lastPresetId;
       if (saved.view) state.view = saved.view;
@@ -619,7 +619,7 @@
       var ss = document.createElement('div');
       ss.className = 'm-zman';
       ss.innerHTML = '<svg class="m-ico"><use href="#i-sunset"/></svg><span class="m-time">' +
-        HebrewUtils.formatTime(day.result.sunset, loc.tz) + '</span>';
+        HebrewUtils.formatTime(ZmanimCommon.displaySunset(day.result, loc), loc.tz) + '</span>';
       td.appendChild(ss);
 
       var showCandles = day.info.isFriday || (day.info.erevChag && !day.info.isShabbat);
@@ -789,9 +789,7 @@
   }
 
   /** ערי הגובה שנהגו בהן להתחשב בגובה לשקיעה (חזון שמים) */
-  function isHighCustomPlace(name) {
-    return /ירושלים|Jerusalem|בית שמש|Beit Shemesh|ביתר עילית|Beitar|מודיעין עילית|Modi'?in Illit/.test(name || '');
-  }
+  var isHighCustomPlace = ZmanimCommon.isHighCustomPlace;
 
   /** השלמת גובה ואזור זמן ממקורות רשת (Open-Meteo) — עם נפילה חיננית */
   function enrichAndSetLocation(name, lat, lon, candleMinutes, statusEl, fullName) {
@@ -1057,7 +1055,8 @@
         el('address-results').innerHTML = '';
         setLocation({
           name: c.name, lat: c.lat, lon: c.lon,
-          elevation: c.elevation, tz: c.tz, candleMinutes: c.candleMinutes
+          elevation: c.elevation, tz: c.tz, candleMinutes: c.candleMinutes,
+          highCustom: c.highCustom
         });
       }
     });
@@ -1292,7 +1291,8 @@
       var jm = ZmanimCities.getById('jerusalem');
       state.loc = {
         name: jm.name, lat: jm.lat, lon: jm.lon,
-        elevation: jm.elevation, tz: jm.tz, candleMinutes: jm.candleMinutes
+        elevation: jm.elevation, tz: jm.tz, candleMinutes: jm.candleMinutes,
+        highCustom: jm.highCustom
       };
     }
     state.date = todayInTZ(state.loc.tz);

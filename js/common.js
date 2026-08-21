@@ -44,6 +44,26 @@
 
   function pad2(n) { return (n < 10 ? '0' : '') + n; }
 
+  /** ערי הגובה שנהגו בהן להתחשב בגובה לשקיעה (ירושלים וכד׳) */
+  function isHighCustomPlace(name) {
+    return /ירושלים|Jerusalem|בית שמש|Beit Shemesh|ביתר עילית|Beitar|מודיעין עילית|Modi'?in Illit/.test(name || '');
+  }
+
+  /** השלמת דגל highCustom למיקום שנשמר לפני שהדגל נוסף */
+  function ensureHighCustom(loc) {
+    if (loc && loc.highCustom == null && isHighCustomPlace(loc.name)) loc.highCustom = true;
+    return loc;
+  }
+
+  /**
+   * השקיעה המוצגת כברירת מחדל: באזורי הגובה (ירושלים, בית שמש, ביתר עילית,
+   * מודיעין עילית וכתובות שבהן) — השקיעה מהגובה, כשהשיטה מחשבת אותה.
+   */
+  function displaySunset(result, loc) {
+    if (loc && loc.highCustom && result && result.sunset2 != null) return result.sunset2;
+    return result ? result.sunset : null;
+  }
+
   global.ZmanimCommon = {
     STORAGE_KEY: STORAGE_KEY,
     browserTZ: browserTZ,
@@ -52,6 +72,9 @@
     noonUTC: noonUTC,
     isSameDate: isSameDate,
     dateKey: dateKey,
-    pad2: pad2
+    pad2: pad2,
+    isHighCustomPlace: isHighCustomPlace,
+    ensureHighCustom: ensureHighCustom,
+    displaySunset: displaySunset
   };
 })(typeof window !== 'undefined' ? window : globalThis);

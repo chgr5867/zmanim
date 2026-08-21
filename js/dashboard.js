@@ -26,7 +26,7 @@
       var raw = localStorage.getItem(STORAGE_KEY);
       if (raw) {
         var saved = JSON.parse(raw);
-        if (saved.loc) loc = saved.loc;
+        if (saved.loc) loc = ZmanimCommon.ensureHighCustom(saved.loc);
         if (saved.methodId) methodId = saved.methodId;
         if (saved.customMethod) customMethod = saved.customMethod;
       }
@@ -34,7 +34,7 @@
 
     if (!loc) {
       var jm = ZmanimCities.getById('jerusalem');
-      loc = { name: jm.name, lat: jm.lat, lon: jm.lon, elevation: jm.elevation, tz: jm.tz, candleMinutes: jm.candleMinutes };
+      loc = { name: jm.name, lat: jm.lat, lon: jm.lon, elevation: jm.elevation, tz: jm.tz, candleMinutes: jm.candleMinutes, highCustom: jm.highCustom };
     }
     if (methodId === 'custom' && customMethod) method = customMethod;
     else method = ZmanimMethods.getById(methodId) || ZmanimMethods.getById('itim-levina') || ZmanimMethods.METHODS[0];
@@ -71,7 +71,10 @@
       } else {
         if (!(key in (method.zmanim || {}))) return;
         if (key === 'tzeisShabbat' && dow !== 6) return;
-        time = result[key];
+        // באזורי הגובה השקיעה המוצגת היא מהגובה — בלי כפל שורות
+        if (key === 'sunset') time = ZmanimCommon.displaySunset(result, loc);
+        else if (key === 'sunset2' && loc.highCustom) return;
+        else time = result[key];
       }
       if (time != null) rows.push({ key: key, name: name, time: time });
     });
@@ -180,6 +183,7 @@
       var time = null;
       if (c.key === 'shabbat-candles') time = data.shabbat.candles;
       else if (c.key === 'shabbat-tzeis') time = data.shabbat.tzeis;
+      else if (c.key === 'sunset') time = ZmanimCommon.displaySunset(data.result, loc);
       else time = data.result[c.key];
       if (time == null) return;
 
