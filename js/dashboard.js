@@ -7,6 +7,11 @@
 (function () {
   'use strict';
 
+  // מצב "מיני" לחלון צף קטן על שולחן העבודה (dashboard.html?mini=1)
+  if (new URLSearchParams(location.search).has('mini')) {
+    document.body.classList.add('led-mini');
+  }
+
   var STORAGE_KEY = ZmanimCommon.STORAGE_KEY;
 
   var loc = null;

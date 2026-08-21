@@ -202,3 +202,29 @@
   .led-side { flex-direction: column; }
   .led-panel { border-width: 6px; padding: 12px 12px 8px; }
 }
+
+/* ===== מצב מיני: חלון צף קטן על שולחן העבודה (dashboard.html?mini=1) =====
+   הגדלים נגזרים מרוחב החלון (vw) כך שגרירת החלון משנה את כל התצוגה יחד */
+.led-mini { padding: 4px; }
+.led-mini .led-back { display: none; }
+.led-mini .led-panel {
+  border-width: 3px;
+  border-radius: 10px;
+  padding: 6px 10px 4px;
+}
+.led-mini .led-top { font-size: clamp(0.55rem, 2.6vw, 0.85rem); padding-bottom: 4px; }
+.led-mini .led-location { font-size: clamp(0.5rem, 2.2vw, 0.75rem); }
+.led-mini .led-middle { flex-direction: row; padding: 5px 0; }
+.led-mini .led-clock { font-size: clamp(1.3rem, 11vw, 2.6rem); }
+.led-mini .led-side { flex-direction: column; min-width: 54px; gap: 1px; }
+.led-mini .led-label { font-size: clamp(0.45rem, 2vw, 0.65rem); }
+.led-mini .led-dayname,
+.led-mini .led-next-time { font-size: clamp(0.75rem, 4.5vw, 1.15rem); }
+.led-mini .led-countdown { font-size: clamp(0.5rem, 2.2vw, 0.7rem); }
+.led-mini .led-parasha-label { margin-top: 3px; }
+.led-mini .led-parasha { font-size: clamp(0.65rem, 3.6vw, 1rem); }
+.led-mini .led-bottom { padding-top: 4px; gap: 3px; }
+.led-mini .led-cell { min-width: 38px; padding: 2px 1px 3px; border-radius: 5px; }
+.led-mini .led-cell .cell-name { font-size: clamp(0.42rem, 1.9vw, 0.6rem); }
+.led-mini .led-cell .cell-time { font-size: clamp(0.6rem, 3.4vw, 0.95rem); }
+.led-mini .led-footer { font-size: clamp(0.42rem, 1.7vw, 0.55rem); padding-top: 3px; }
