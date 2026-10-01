@@ -72,6 +72,7 @@
     var ctx = {};
     ctx.date = d;
     ctx.loc = loc;
+    ctx.methodElevation = method.elevation || 'visible';
 
     // זריחה ושקיעה — גם "נראית" (עם גובה) וגם "מישורית" (גובה פני הים).
     // method.refraction — רפרקציה מותאמת (למשל 0.5166° בלוחות ההולכים אחר הרב מנת)
@@ -167,12 +168,22 @@
     var d = ctx.date, loc = ctx.loc;
     switch (rule.type) {
       case 'sunrise':
-        return rule.elevation === 'sea' ? ctx.sunriseSea :
-          rule.elevation === 'visible' ? ctx.sunriseVisible : ctx.sunrise;
-
-      case 'sunset':
+      case 'sunset': {
+        var rising = rule.type === 'sunrise';
+        // רפרקציה מותאמת בחוק עצמו (למשל 31' של עתים לבינה בשיטה אישית) — חישוב ישיר
+        if (rule.refraction != null) {
+          var useSea = rule.elevation === 'sea' ||
+            (rule.elevation !== 'visible' && ctx.methodElevation === 'sea');
+          return Solar.sunEventUTC(d.year, d.month, d.day, loc.lat, loc.lon, Solar.GEOMETRIC_ZENITH,
+            rising, useSea ? 0 : (loc.elevation || 0), rule.refraction);
+        }
+        if (rising) {
+          return rule.elevation === 'sea' ? ctx.sunriseSea :
+            rule.elevation === 'visible' ? ctx.sunriseVisible : ctx.sunrise;
+        }
         return rule.elevation === 'sea' ? ctx.sunsetSea :
           rule.elevation === 'visible' ? ctx.sunsetVisible : ctx.sunset;
+      }
 
       case 'degrees': {
         var isMorning = rule.ref !== 'sunset';
@@ -243,6 +254,13 @@
     return '⁦' + s + '⁩';
   }
 
+  /** הערת רפרקציה לחוק זריחה/שקיעה עם רפרקציה מותאמת */
+  function refractionNote(rule) {
+    if (rule.refraction == null) return '';
+    var arcmin = Math.round(rule.refraction * 60);
+    return ' — רפרקציה ' + ltrNum(arcmin + '′') + (arcmin === 31 ? ' (עתים לבינה)' : '');
+  }
+
   /** תיאור מילולי של חוק — להצגה למשתמש */
   function describeRule(rule, method) {
     if (!rule) return '';
@@ -250,11 +268,11 @@
     switch (rule.type) {
       case 'sunrise': {
         var srMode = rule.elevation || (method && method.elevation) || 'visible';
-        return srMode === 'sea' ? 'זריחה מישורית (גובה פני הים)' : 'זריחה לפי גובה המקום';
+        return (srMode === 'sea' ? 'זריחה מישורית (גובה פני הים)' : 'זריחה לפי גובה המקום') + refractionNote(rule);
       }
       case 'sunset': {
         var ssMode = rule.elevation || (method && method.elevation) || 'visible';
-        return ssMode === 'sea' ? 'שקיעה מישורית (גובה פני הים)' : 'שקיעה לפי גובה המקום';
+        return (ssMode === 'sea' ? 'שקיעה מישורית (גובה פני הים)' : 'שקיעה לפי גובה המקום') + refractionNote(rule);
       }
       case 'degrees':
         return ltrNum(rule.angle + '°') + ' מתחת לאופק ' + (rule.ref === 'sunset' ? 'אחרי השקיעה' : 'לפני הזריחה');
