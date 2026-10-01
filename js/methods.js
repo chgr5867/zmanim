@@ -277,11 +277,18 @@
     sunrise: [
       { label: 'זריחה מישורית (פני הים) — לוחות א״י', rule: { type: 'sunrise', elevation: 'sea' } },
       { label: 'זריחה לפי גובה המקום', rule: { type: 'sunrise', elevation: 'visible' } },
-      { label: 'זריחה מגובה המקום + 3 דק׳ (הגרימ״ט)', rule: { type: 'fixed', minutes: 3, ref: 'sunriseVisible' } }
+      { label: 'זריחה מגובה המקום + 3 דק׳ (הגרימ״ט)', rule: { type: 'fixed', minutes: 3, ref: 'sunriseVisible' } },
+      { label: 'לוח עתים לבינה — זריחה מישורית, רפרקציה 31′ (הרב מנת)', rule: { type: 'sunrise', elevation: 'sea', refraction: 0.5166 } }
     ],
     sunset: [
       { label: 'שקיעה מישורית (פני הים) — לוחות א״י', rule: { type: 'sunset', elevation: 'sea' } },
-      { label: 'שקיעה לפי גובה המקום', rule: { type: 'sunset', elevation: 'visible' } }
+      { label: 'שקיעה לפי גובה המקום', rule: { type: 'sunset', elevation: 'visible' } },
+      {
+        label: 'לוח עתים לבינה — שקיעה מישורית (רפרקציה 31′), ולצדה שקיעה מהגובה; נרות מהגובה',
+        rule: { type: 'sunset', elevation: 'sea', refraction: 0.5166 },
+        // תוספות לשיטה כולה כשבוחרים באפשרות זו (כבלוח)
+        extras: { candlesRef: 'sunset2', zmanim: { sunset2: { type: 'sunset', elevation: 'visible', refraction: 0.5166 } } }
+      }
     ],
     chatzos: [
       { label: 'חצות אסטרונומי (מעבר מרידיאן) — לוחות א״י', rule: { type: 'chatzos', mode: 'transit' } },

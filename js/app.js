@@ -1017,7 +1017,15 @@
       var idx = +select.value;
       selections[key] = idx;
       var opt = (opts[key] || [])[idx];
-      if (opt) method.zmanim[key] = JSON.parse(JSON.stringify(opt.rule));
+      if (!opt) return;
+      method.zmanim[key] = JSON.parse(JSON.stringify(opt.rule));
+      // תוספות לשיטה כולה הנלוות לאפשרות (למשל שקיעה מהגובה ונרות מהגובה בעתים לבינה)
+      if (opt.extras) {
+        var extras = JSON.parse(JSON.stringify(opt.extras));
+        if (extras.zmanim) Object.assign(method.zmanim, extras.zmanim);
+        delete extras.zmanim;
+        Object.assign(method, extras);
+      }
     });
 
     var mgaIdx = +el('custom-mga-basis').value;
@@ -1026,9 +1034,13 @@
     method.mgaDayStart = JSON.parse(JSON.stringify(mga.start));
     method.mgaDayEnd = JSON.parse(JSON.stringify(mga.end));
 
-    // בסיס הגר"א נגזר מבחירת הזריחה/שקיעה
+    // בסיס הגר"א נגזר מבחירת הזריחה/שקיעה — גובה ורפרקציה
     var sunriseRule = method.zmanim.sunrise;
+    var sunsetRule = method.zmanim.sunset;
     method.elevation = (sunriseRule && sunriseRule.elevation === 'sea') ? 'sea' : 'visible';
+    var ruleRefr = (sunriseRule && sunriseRule.refraction != null) ? sunriseRule.refraction
+      : (sunsetRule && sunsetRule.refraction != null) ? sunsetRule.refraction : null;
+    if (ruleRefr != null) method.refraction = ruleRefr;
 
     state.customMethod = method;
     state.customSelections = selections;
