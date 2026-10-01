@@ -304,7 +304,8 @@
       { label: '24 דקות שוות', rule: { type: 'fixed', minutes: 24, ref: 'sunset' } },
       { label: '30 דקות שוות', rule: { type: 'fixed', minutes: 30, ref: 'sunset' } },
       { label: '40 דקות שוות (חזון איש)', rule: { type: 'fixed', minutes: 40, ref: 'sunset' } },
-      { label: '50 דקות שוות (הגר״מ פיינשטיין)', rule: { type: 'fixed', minutes: 50, ref: 'sunset' } }
+      { label: '50 דקות שוות (הגר״מ פיינשטיין)', rule: { type: 'fixed', minutes: 50, ref: 'sunset' } },
+      { label: '4.61° — 18 דק׳ במעלות (לוח עתים לבינה)', rule: { type: 'degrees', angle: 4.61, ref: 'sunset' } }
     ],
     tzeisShabbat: [
       { label: '8.5° — הנפוץ בא״י (הגרימ״ט)', rule: { type: 'degrees', angle: 8.5, ref: 'sunset' } },
@@ -329,7 +330,8 @@
       { label: 'המאוחר מבין: חצות+30 / 6.5 שעות (לוחות א״י)', rule: { type: 'later', rules: [{ type: 'fixed', minutes: 30, ref: 'chatzos' }, { type: 'shaos', hours: 6.5, basis: 'gra' }] } },
       { label: '6.5 שעות זמניות (גר״א)', rule: { type: 'shaos', hours: 6.5, basis: 'gra' } },
       { label: '6.5 שעות זמניות (מג״א)', rule: { type: 'shaos', hours: 6.5, basis: 'mga' } },
-      { label: '30 דקות שוות אחר חצות', rule: { type: 'fixed', minutes: 30, ref: 'chatzos' } }
+      { label: '30 דקות שוות אחר חצות', rule: { type: 'fixed', minutes: 30, ref: 'chatzos' } },
+      { label: 'המאוחר מבין: חצות+30 שוות / חצות+30 זמניות (עתים לבינה, חזון שמים)', rule: { type: 'later', rules: [{ type: 'fixed', minutes: 30, ref: 'chatzos' }, { type: 'seasonal', minutes: 30, ref: 'chatzos', basis: 'gra' }] } }
     ],
     minchaKetana: [
       { label: '9.5 שעות זמניות (גר״א)', rule: { type: 'shaos', hours: 9.5, basis: 'gra' } },

@@ -71,8 +71,15 @@
     return ZmanimMethods.getById(state.methodId) || ZmanimMethods.METHODS[0];
   }
 
-  function defaultCustomMethod() {
-    var base = ZmanimMethods.getById(state.lastPresetId) || ZmanimMethods.METHODS[0];
+  /** הלוח שעליו מבוססת השיטה האישית: הבחירה בעורך, ואם אין — הלוח האחרון שנבחר */
+  function customBaseId() {
+    var sel = state.customSelections || {};
+    if (sel._base && ZmanimMethods.getById(sel._base)) return sel._base;
+    return state.lastPresetId;
+  }
+
+  function defaultCustomMethod(baseId) {
+    var base = ZmanimMethods.getById(baseId || customBaseId()) || ZmanimMethods.METHODS[0];
     var copy = JSON.parse(JSON.stringify(base));
     copy.id = 'custom';
     copy.name = 'שיטה אישית';
@@ -893,7 +900,8 @@
     { label: 'מעלות: 16.1° ↔ 16.1° (72 דק׳)', start: { type: 'degrees', angle: 16.1, ref: 'sunrise' }, end: { type: 'degrees', angle: 16.1, ref: 'sunset' } },
     { label: 'דקות שוות: 72 ↔ 72', start: { type: 'fixed', minutes: -72, ref: 'sunrise' }, end: { type: 'fixed', minutes: 72, ref: 'sunset' } },
     { label: 'דקות שוות: 90 ↔ 90', start: { type: 'fixed', minutes: -90, ref: 'sunrise' }, end: { type: 'fixed', minutes: 90, ref: 'sunset' } },
-    { label: 'דקות זמניות: 72 ↔ 72 (ספרדים)', start: { type: 'seasonal', minutes: -72, ref: 'sunrise', basis: 'gra' }, end: { type: 'seasonal', minutes: 72, ref: 'sunset', basis: 'gra' } }
+    { label: 'דקות זמניות: 72 ↔ 72 (ספרדים)', start: { type: 'seasonal', minutes: -72, ref: 'sunrise', basis: 'gra' }, end: { type: 'seasonal', minutes: 72, ref: 'sunset', basis: 'gra' } },
+    { label: 'מעלות: 19.8° ↔ 19.8° (עתים לבינה, 90 דק׳)', start: { type: 'degrees', angle: 19.8, ref: 'sunrise' }, end: { type: 'degrees', angle: 19.8, ref: 'sunset' } }
   ];
 
   /** תיקון כיווניות: עטיפת ערכים כמו "16.1°" ב-LTR isolate כדי שיוצגו נכון בעברית */
@@ -918,6 +926,32 @@
     var opts = ZmanimMethods.CUSTOM_OPTIONS;
     var sel = state.customSelections || {};
 
+    // הלוח הבסיסי — כל מה שאינו נבחר בעורך (רפרקציה, עיגול, שקיעה מהגובה, נרות,
+    // מג"א לחומרא וכו') נלקח ממנו. כך אפשר לבנות שיטה אישית גם על לוח עתים לבינה.
+    var baseRow = document.createElement('div');
+    baseRow.className = 'custom-row';
+    var baseLabel = document.createElement('label');
+    baseLabel.textContent = 'מבוסס על לוח';
+    baseLabel.setAttribute('for', 'custom-base');
+    var baseSelect = document.createElement('select');
+    baseSelect.id = 'custom-base';
+    ZmanimMethods.METHODS.forEach(function (m) {
+      var o = document.createElement('option');
+      o.value = m.id;
+      o.textContent = m.name;
+      baseSelect.appendChild(o);
+    });
+    baseSelect.value = customBaseId();
+    baseSelect.addEventListener('change', function () {
+      // החלפת הבסיס מאפסת את הבחירות הפרטניות לערכי הלוח החדש
+      state.customSelections = { _base: this.value };
+      state.customMethod = null;
+      buildCustomEditor();
+    });
+    baseRow.appendChild(baseLabel);
+    baseRow.appendChild(baseSelect);
+    container.appendChild(baseRow);
+
     EDITOR_ZMANIM.forEach(function (key) {
       var options = opts[key] || [];
       if (!options.length) return;
@@ -935,7 +969,12 @@
         o.textContent = fixBidi(opt.label);
         select.appendChild(o);
       });
-      var chosen = (sel[key] != null) ? sel[key] : findMatchingOption(options, baseMethod.zmanim[key]);
+      // חוק זריחה/שקיעה בלי שדה גובה מפורש יורש את הגדרת הלוח — משלימים כדי שיימצא ברשימה
+      var baseRule = baseMethod.zmanim[key];
+      if ((key === 'sunrise' || key === 'sunset') && baseRule && baseRule.type === key && !baseRule.elevation) {
+        baseRule = Object.assign({}, baseRule, { elevation: baseMethod.elevation || 'visible' });
+      }
+      var chosen = (sel[key] != null) ? sel[key] : findMatchingOption(options, baseRule);
       if (chosen >= 0 && select.options[chosen]) select.value = chosen;
       row.appendChild(label);
       row.appendChild(select);
@@ -966,9 +1005,11 @@
   }
 
   function saveCustomFromEditor() {
-    var method = defaultCustomMethod();
+    var baseSel = el('custom-base');
+    var baseId = (baseSel && ZmanimMethods.getById(baseSel.value)) ? baseSel.value : customBaseId();
+    var method = defaultCustomMethod(baseId);
     var opts = ZmanimMethods.CUSTOM_OPTIONS;
-    var selections = {};
+    var selections = { _base: baseId };
 
     EDITOR_ZMANIM.forEach(function (key) {
       var select = el('custom-' + key);
