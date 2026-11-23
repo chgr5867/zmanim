@@ -73,11 +73,14 @@
   var METHODS = [
     {
       id: 'itim-levina',
-      name: 'עתים לבינה',
-      description: 'לוח עתים לבינה (הרב דוד אהרן סופר, ירושלים) — כל זמני האור במעלות: ' +
+      // המזהה הפנימי נשמר כדי לא לאבד הגדרות שמורות של משתמשים קיימים.
+      // זהו חישוב עצמאי של האפליקציה — אינו לוח רשמי כלשהו (ראו docs/RESEARCH.md).
+      name: 'שיטת המעלות — כל זמני האור במעלות',
+      description: 'חישוב עצמאי של האפליקציה (אינו לוח רשמי של גוף כלשהו) — כל זמני האור במעלות: ' +
         'עלות א׳ 19.8° (90 דק׳), עלות ב׳ 16.1° (72 דק׳), משיכיר 11.5°, צאת גאונים 18 דק׳ במעלות (4.61°). ' +
-        'כבלוח: שקיעה במישור ולצדה שקיעה מהגובה (זהירות מלהקל), הדלקת נרות מהשקיעה מהגובה, ' +
-        'חצות אמיתי, מנחה גדולה — המאוחר, מוצ״ש 8.5°, ר״ת 72 במעלות (16.1°) ולצדו 72 שוות מהגובה.',
+        'שקיעה במישור ולצדה שקיעה מהגובה (זהירות מלהקל), הדלקת נרות מהשקיעה מהגובה, ' +
+        'חצות אמיתי, מנחה גדולה — המאוחר, מוצ״ש 8.5°, ר״ת 72 במעלות (16.1°) ולצדו 72 שוות מהגובה. ' +
+        'ייתכנו הפרשים של עד כדקה לעומת לוחות מודפסים.',
       elevation: 'sea',
       candlesRef: 'sunset2',
       refraction: 0.5166,
@@ -278,15 +281,15 @@
       { label: 'זריחה מישורית (פני הים) — לוחות א״י', rule: { type: 'sunrise', elevation: 'sea' } },
       { label: 'זריחה לפי גובה המקום', rule: { type: 'sunrise', elevation: 'visible' } },
       { label: 'זריחה מגובה המקום + 3 דק׳ (הגרימ״ט)', rule: { type: 'fixed', minutes: 3, ref: 'sunriseVisible' } },
-      { label: 'לוח עתים לבינה — זריחה מישורית, רפרקציה 31′ (הרב מנת)', rule: { type: 'sunrise', elevation: 'sea', refraction: 0.5166 } }
+      { label: 'זריחה מישורית, רפרקציה 31′ (הרב מנת) — שיטת המעלות', rule: { type: 'sunrise', elevation: 'sea', refraction: 0.5166 } }
     ],
     sunset: [
       { label: 'שקיעה מישורית (פני הים) — לוחות א״י', rule: { type: 'sunset', elevation: 'sea' } },
       { label: 'שקיעה לפי גובה המקום', rule: { type: 'sunset', elevation: 'visible' } },
       {
-        label: 'לוח עתים לבינה — שקיעה מישורית (רפרקציה 31′), ולצדה שקיעה מהגובה; נרות מהגובה',
+        label: 'שקיעה מישורית (רפרקציה 31′), ולצדה שקיעה מהגובה; נרות מהגובה — שיטת המעלות',
         rule: { type: 'sunset', elevation: 'sea', refraction: 0.5166 },
-        // תוספות לשיטה כולה כשבוחרים באפשרות זו (כבלוח)
+        // תוספות לשיטה כולה כשבוחרים באפשרות זו (כבשיטת המעלות)
         extras: { candlesRef: 'sunset2', zmanim: { sunset2: { type: 'sunset', elevation: 'visible', refraction: 0.5166 } } }
       }
     ],
@@ -295,7 +298,7 @@
       { label: 'אמצע בין הזריחה לשקיעה', rule: { type: 'chatzos' } }
     ],
     tzeis: [
-      { label: '4.66° — כ־18 דק׳ במעלות (עתים לבינה)', rule: { type: 'degrees', angle: 4.66, ref: 'sunset' } },
+      { label: '4.66° — כ־18 דק׳ במעלות', rule: { type: 'degrees', angle: 4.66, ref: 'sunset' } },
       { label: '3.7° — 13.5 דק׳ במעלות (לחומרא)', rule: { type: 'degrees', angle: 3.7, ref: 'sunset' } },
       { label: '4.8° — 18.6 דק׳ (הרב שלזינגר)', rule: { type: 'degrees', angle: 4.8, ref: 'sunset' } },
       { label: '5.95° — בעל התניא (24 דק׳ בא״י)', rule: { type: 'degrees', angle: 5.95, ref: 'sunset' } },
@@ -303,7 +306,7 @@
       { label: '6.45° — הגרימ״ט / בירור הלכה (מוצאי צום)', rule: { type: 'degrees', angle: 6.45, ref: 'sunset' } },
       { label: '7.083° — ג׳ כוכבים בינוניים', rule: { type: 'degrees', angle: 7.083, ref: 'sunset' } },
       { label: '8.5° — ג׳ כוכבים קטנים (מוצ״ש א״י)', rule: { type: 'degrees', angle: 8.5, ref: 'sunset' } },
-      { label: '9.3° — צאת לחומרא (עתים לבינה)', rule: { type: 'degrees', angle: 9.3, ref: 'sunset' } },
+      { label: '9.3° — צאת לחומרא', rule: { type: 'degrees', angle: 9.3, ref: 'sunset' } },
       { label: '13.5 דקות זמניות (ספרדים)', rule: { type: 'seasonal', minutes: 13.5, ref: 'sunset', basis: 'gra' } },
       { label: '13.5 דקות שוות', rule: { type: 'fixed', minutes: 13.5, ref: 'sunset' } },
       { label: '18 דקות שוות', rule: { type: 'fixed', minutes: 18, ref: 'sunset' } },
@@ -312,12 +315,12 @@
       { label: '30 דקות שוות', rule: { type: 'fixed', minutes: 30, ref: 'sunset' } },
       { label: '40 דקות שוות (חזון איש)', rule: { type: 'fixed', minutes: 40, ref: 'sunset' } },
       { label: '50 דקות שוות (הגר״מ פיינשטיין)', rule: { type: 'fixed', minutes: 50, ref: 'sunset' } },
-      { label: '4.61° — 18 דק׳ במעלות (לוח עתים לבינה)', rule: { type: 'degrees', angle: 4.61, ref: 'sunset' } }
+      { label: '4.61° — 18 דק׳ במעלות (שיטת המעלות)', rule: { type: 'degrees', angle: 4.61, ref: 'sunset' } }
     ],
     tzeisShabbat: [
       { label: '8.5° — הנפוץ בא״י (הגרימ״ט)', rule: { type: 'degrees', angle: 8.5, ref: 'sunset' } },
       { label: '7.67° — אגרות משה (45 דק׳ בנ״י)', rule: { type: 'degrees', angle: 7.67, ref: 'sunset' } },
-      { label: '9.3° — לחומרא (עתים לבינה)', rule: { type: 'degrees', angle: 9.3, ref: 'sunset' } },
+      { label: '9.3° — לחומרא', rule: { type: 'degrees', angle: 9.3, ref: 'sunset' } },
       { label: '9.75° — הגר״י הענקין (60 דק׳ בנ״י)', rule: { type: 'degrees', angle: 9.75, ref: 'sunset' } },
       { label: '30 דקות שוות (הגר״ע יוסף)', rule: { type: 'fixed', minutes: 30, ref: 'sunset' } },
       { label: '40 דקות שוות (חזון איש — ב״ב)', rule: { type: 'fixed', minutes: 40, ref: 'sunset' } },
@@ -338,7 +341,7 @@
       { label: '6.5 שעות זמניות (גר״א)', rule: { type: 'shaos', hours: 6.5, basis: 'gra' } },
       { label: '6.5 שעות זמניות (מג״א)', rule: { type: 'shaos', hours: 6.5, basis: 'mga' } },
       { label: '30 דקות שוות אחר חצות', rule: { type: 'fixed', minutes: 30, ref: 'chatzos' } },
-      { label: 'המאוחר מבין: חצות+30 שוות / חצות+30 זמניות (עתים לבינה, חזון שמים)', rule: { type: 'later', rules: [{ type: 'fixed', minutes: 30, ref: 'chatzos' }, { type: 'seasonal', minutes: 30, ref: 'chatzos', basis: 'gra' }] } }
+      { label: 'המאוחר מבין: חצות+30 שוות / חצות+30 זמניות (שיטת המעלות, חזון שמים)', rule: { type: 'later', rules: [{ type: 'fixed', minutes: 30, ref: 'chatzos' }, { type: 'seasonal', minutes: 30, ref: 'chatzos', basis: 'gra' }] } }
     ],
     minchaKetana: [
       { label: '9.5 שעות זמניות (גר״א)', rule: { type: 'shaos', hours: 9.5, basis: 'gra' } },
