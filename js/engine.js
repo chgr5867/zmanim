@@ -124,7 +124,7 @@
 
     // עיגול לדקה שלמה כמנהג הלוחות:
     // 'lechumra' (ברירת מחדל) — לפי כיוון החומרא של כל זמן;
-    // 'truncate' — חיתוך שניות תמיד (מנהג עתים לבינה);
+    // 'truncate' — חיתוך שניות תמיד (שיטת המעלות);
     // 'none' — ללא עיגול (לבדיקות דיוק).
     var scheme = method.rounding || 'lechumra';
     if (scheme !== 'none') {
@@ -170,7 +170,7 @@
       case 'sunrise':
       case 'sunset': {
         var rising = rule.type === 'sunrise';
-        // רפרקציה מותאמת בחוק עצמו (למשל 31' של עתים לבינה בשיטה אישית) — חישוב ישיר
+        // רפרקציה מותאמת בחוק עצמו (למשל 31' של הרב מנת בשיטה אישית) — חישוב ישיר
         if (rule.refraction != null) {
           var useSea = rule.elevation === 'sea' ||
             (rule.elevation !== 'visible' && ctx.methodElevation === 'sea');
@@ -258,7 +258,7 @@
   function refractionNote(rule) {
     if (rule.refraction == null) return '';
     var arcmin = Math.round(rule.refraction * 60);
-    return ' — רפרקציה ' + ltrNum(arcmin + '′') + (arcmin === 31 ? ' (עתים לבינה)' : '');
+    return ' — רפרקציה ' + ltrNum(arcmin + '′') + (arcmin === 31 ? ' (הרב מנת)' : '');
   }
 
   /** תיאור מילולי של חוק — להצגה למשתמש */

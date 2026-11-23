@@ -112,7 +112,7 @@
     var info = makeDayInfo(d);
     var result = ZmanimEngine.computeDay(d, loc, method);
     var candleMinutes = loc.candleMinutes || 18;
-    // חלק מהלוחות (עתים לבינה) מונים הדלקת נרות מהשקיעה מהגובה;
+    // בשיטת המעלות הדלקת הנרות נמנית מהשקיעה מהגובה;
     // בחזון שמים — רק בערי הגובה (ירושלים, ב"ש, ביתר ומודיעין עילית)
     var candlesRef = method.candlesRef;
     if (loc.highCustom && method.highCityOverrides && method.highCityOverrides.candlesRef) {
@@ -901,7 +901,7 @@
     { label: 'דקות שוות: 72 ↔ 72', start: { type: 'fixed', minutes: -72, ref: 'sunrise' }, end: { type: 'fixed', minutes: 72, ref: 'sunset' } },
     { label: 'דקות שוות: 90 ↔ 90', start: { type: 'fixed', minutes: -90, ref: 'sunrise' }, end: { type: 'fixed', minutes: 90, ref: 'sunset' } },
     { label: 'דקות זמניות: 72 ↔ 72 (ספרדים)', start: { type: 'seasonal', minutes: -72, ref: 'sunrise', basis: 'gra' }, end: { type: 'seasonal', minutes: 72, ref: 'sunset', basis: 'gra' } },
-    { label: 'מעלות: 19.8° ↔ 19.8° (עתים לבינה, 90 דק׳)', start: { type: 'degrees', angle: 19.8, ref: 'sunrise' }, end: { type: 'degrees', angle: 19.8, ref: 'sunset' } }
+    { label: 'מעלות: 19.8° ↔ 19.8° (90 דק׳)', start: { type: 'degrees', angle: 19.8, ref: 'sunrise' }, end: { type: 'degrees', angle: 19.8, ref: 'sunset' } }
   ];
 
   /** תיקון כיווניות: עטיפת ערכים כמו "16.1°" ב-LTR isolate כדי שיוצגו נכון בעברית */
@@ -927,7 +927,7 @@
     var sel = state.customSelections || {};
 
     // הלוח הבסיסי — כל מה שאינו נבחר בעורך (רפרקציה, עיגול, שקיעה מהגובה, נרות,
-    // מג"א לחומרא וכו') נלקח ממנו. כך אפשר לבנות שיטה אישית גם על לוח עתים לבינה.
+    // מג"א לחומרא וכו') נלקח ממנו. כך אפשר לבנות שיטה אישית גם על שיטת המעלות.
     var baseRow = document.createElement('div');
     baseRow.className = 'custom-row';
     var baseLabel = document.createElement('label');
@@ -1019,7 +1019,7 @@
       var opt = (opts[key] || [])[idx];
       if (!opt) return;
       method.zmanim[key] = JSON.parse(JSON.stringify(opt.rule));
-      // תוספות לשיטה כולה הנלוות לאפשרות (למשל שקיעה מהגובה ונרות מהגובה בעתים לבינה)
+      // תוספות לשיטה כולה הנלוות לאפשרות (למשל שקיעה מהגובה ונרות מהגובה בשיטת המעלות)
       if (opt.extras) {
         var extras = JSON.parse(JSON.stringify(opt.extras));
         if (extras.zmanim) Object.assign(method.zmanim, extras.zmanim);
